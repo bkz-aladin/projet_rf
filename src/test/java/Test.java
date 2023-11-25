@@ -2,7 +2,7 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 
-public class Teste {
+public class Test {
 
     public double lireMesure(String nomFichier) {
         double mesure = 0.0;
