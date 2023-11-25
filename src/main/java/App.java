@@ -1,42 +1,46 @@
-import input_output.LecteurDonnees;
+import input_output.DataReader;
+
+import java.util.ArrayList;
 
 public class App {
 
     public static void main(String[] args) {
+        /*
         // Initialisation des variables nécessaires à la définition de BDshape et de ses mesures
-        int nombreClasses = 9;
-        int nombreEchantillons = 11;
-        int nombreMesuresE34 = 16;
-        int nombreMesuresF0 = 128;
-        int nombreMesuresGFD = 100;
-        int nombreMesuresSA = 90;
+        int amountOfClasses = 9;
+        int amountOfSamples = 11;
+        int amountOfMeasuresE34 = 16;
+        int amountOfMeasuresF0 = 128;
+        int amountOfMeasuresGFD = 100;
+        int amountOfMeasuresSA = 90;
+         */
 
         // Déclaration et initialisation d'un tableau à trois dimensions
-        double[][][] mesuresE34 = new double[nombreClasses][nombreEchantillons][nombreMesuresE34];
-        double[][][] mesuresF0 = new double[nombreClasses][nombreEchantillons][nombreMesuresF0];
-        double[][][] mesuresGFD = new double[nombreClasses][nombreEchantillons][nombreMesuresGFD];
-        double[][][] mesuresSA = new double[nombreClasses][nombreEchantillons][nombreMesuresSA];
+        ArrayList<ArrayList<ArrayList<Double>>> measuresE34;
+        ArrayList<ArrayList<ArrayList<Double>>> measuresF0;
+        ArrayList<ArrayList<ArrayList<Double>>> measuresGFD;
+        ArrayList<ArrayList<ArrayList<Double>>> measuresSA;
 
         // Création d'une instance de LecteurDonnees pour les mesures E34
-        LecteurDonnees lecteurE34 = new LecteurDonnees("../data/E34/", nombreMesuresE34, ".e34");
-        LecteurDonnees lecteurF0 = new LecteurDonnees("../data/F0/", nombreMesuresF0, ".f0");
-        LecteurDonnees lecteurGFD = new LecteurDonnees("../data/GFD/", nombreMesuresGFD, ".gfd");
-        LecteurDonnees lecteurSA = new LecteurDonnees("../data/SA/", nombreMesuresSA, ".sa");
+        DataReader readerE34 = new DataReader("../data/E34/", ".e34");
+        DataReader readerF0 = new DataReader("../data/F0/", ".f0");
+        DataReader readerGFD = new DataReader("../data/GFD/", ".gfd");
+        DataReader readerSA = new DataReader("../data/SA/", ".sa");
 
         // Utilisation de l'instance pour lire les mesures E34
-        lecteurE34.lireMesures(mesuresE34);
-        lecteurF0.lireMesures(mesuresF0);
-        lecteurGFD.lireMesures(mesuresGFD);
-        lecteurSA.lireMesures(mesuresSA);
+        measuresE34 = readerE34.readMeasures();
+        measuresF0 = readerF0.readMeasures();
+        measuresGFD = readerGFD.readMeasures();
+        measuresSA = readerSA.readMeasures();
 
-        // System.out.println(mesuresE34);
-        // lecteurE34.afficherMesures(mesuresE34);
-        // lecteurF0.afficherMesures(mesuresF0);
-        lecteurGFD.afficherMesures(mesuresGFD);
-        // lecteurSA.afficherMesures(mesuresSA);
+        // System.out.println(measuresE34);
+        // readerE34.afficherMesures(measuresE34);
+        // readerF0.afficherMesures(measuresF0);
+        readerGFD.printMeasures(measuresGFD);
+        // readerSA.afficherMesures(measuresSA);
 
         // Affichage du tableau
-        // afficherTableau(mesuresE34);
+        // afficherTableau(measuresE34);
     }
 
     
