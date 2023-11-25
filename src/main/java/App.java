@@ -1,19 +1,21 @@
+import input_output.LecteurDonnees;
+
 public class App {
 
     public static void main(String[] args) {
-        // Supposons que vous avez 9 classes, chaque classe ayant 11 images et chaque image a 16 mesures E34
+        // Initialisation des variables nécessaires à la définition de BDshape et de ses mesures
         int nombreClasses = 9;
-        int nombreImagesParClasse = 11;
+        int nombreEchantillons = 11;
         int nombreMesuresE34 = 16;
         int nombreMesuresF0 = 128;
         int nombreMesuresGFD = 100;
         int nombreMesuresSA = 90;
 
         // Déclaration et initialisation d'un tableau à trois dimensions
-        double[][][] mesuresE34 = new double[nombreClasses][nombreImagesParClasse][nombreMesuresE34];
-        double[][][] mesuresF0 = new double[nombreClasses][nombreImagesParClasse][nombreMesuresF0];
-        double[][][] mesuresGFD = new double[nombreClasses][nombreImagesParClasse][nombreMesuresGFD];
-        double[][][] mesuresSA = new double[nombreClasses][nombreImagesParClasse][nombreMesuresSA];
+        double[][][] mesuresE34 = new double[nombreClasses][nombreEchantillons][nombreMesuresE34];
+        double[][][] mesuresF0 = new double[nombreClasses][nombreEchantillons][nombreMesuresF0];
+        double[][][] mesuresGFD = new double[nombreClasses][nombreEchantillons][nombreMesuresGFD];
+        double[][][] mesuresSA = new double[nombreClasses][nombreEchantillons][nombreMesuresSA];
 
         // Création d'une instance de LecteurDonnees pour les mesures E34
         LecteurDonnees lecteurE34 = new LecteurDonnees("../data/E34/", nombreMesuresE34, ".e34");
