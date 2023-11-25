@@ -16,10 +16,10 @@ public class App {
          */
 
         // Déclaration et initialisation d'un tableau à trois dimensions
-        ArrayList<ArrayList<ArrayList<Double>>> measuresE34 = new ArrayList<>();
-        ArrayList<ArrayList<ArrayList<Double>>> measuresF0 = new ArrayList<>();
-        ArrayList<ArrayList<ArrayList<Double>>> measuresGFD = new ArrayList<>();
-        ArrayList<ArrayList<ArrayList<Double>>> measuresSA = new ArrayList<>();
+        ArrayList<ArrayList<ArrayList<Double>>> measuresE34;
+        ArrayList<ArrayList<ArrayList<Double>>> measuresF0;
+        ArrayList<ArrayList<ArrayList<Double>>> measuresGFD;
+        ArrayList<ArrayList<ArrayList<Double>>> measuresSA;
 
         // Création d'une instance de LecteurDonnees pour les mesures E34
         DataReader readerE34 = new DataReader("../data/E34/", ".e34");
