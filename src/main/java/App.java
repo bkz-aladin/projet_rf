@@ -1,6 +1,7 @@
+import data.Sample;
 import input_output.DataReader;
 
-import java.util.ArrayList;
+import java.util.List;
 
 public class App {
 
@@ -16,10 +17,10 @@ public class App {
          */
 
         // Déclaration et initialisation d'un tableau à trois dimensions
-        ArrayList<ArrayList<ArrayList<Double>>> measuresE34;
-        ArrayList<ArrayList<ArrayList<Double>>> measuresF0;
-        ArrayList<ArrayList<ArrayList<Double>>> measuresGFD;
-        ArrayList<ArrayList<ArrayList<Double>>> measuresSA;
+        List<Sample> dataSetE34;
+        List<Sample> dataSetF0;
+        List<Sample> dataSetGFD;
+        List<Sample> dataSetSA;
 
         // Création d'une instance de LecteurDonnees pour les mesures E34
         DataReader readerE34 = new DataReader("../data/E34/", ".e34");
@@ -28,20 +29,22 @@ public class App {
         DataReader readerSA = new DataReader("../data/SA/", ".sa");
 
         // Utilisation de l'instance pour lire les mesures E34
-        measuresE34 = readerE34.readMeasures();
-        measuresF0 = readerF0.readMeasures();
-        measuresGFD = readerGFD.readMeasures();
-        measuresSA = readerSA.readMeasures();
+        dataSetF0 = readerE34.getDataSet();
+        dataSetF0 = readerF0.getDataSet();
+        dataSetGFD = readerGFD.getDataSet();
+        dataSetSA = readerSA.getDataSet();
 
-        // System.out.println(measuresE34);
-        // readerE34.afficherMesures(measuresE34);
-        // readerF0.afficherMesures(measuresF0);
-        readerGFD.printMeasures(measuresGFD);
-        // readerSA.afficherMesures(measuresSA);
+        /***********************************************************************************/
+        /** tests **/
+        DataReader.printMeasures(dataSetGFD);
 
-        // Affichage du tableau
-        // afficherTableau(measuresE34);
+        Sample sample1 = dataSetGFD.get(0);
+        Sample sample2 = dataSetGFD.get(1);
+        System.out.println(sample1.isLabelEqualTo(sample2));
+
+        Sample sampleN = dataSetGFD.get(dataSetGFD.size() - 1);
+        System.out.println(sample1.isLabelEqualTo(sampleN));
+        System.out.println("Sample 1's class: " + sample1.getLabelNumber()
+                + "\nSample 99's class: " + sampleN.getLabelNumber());
     }
-
-    
 }
