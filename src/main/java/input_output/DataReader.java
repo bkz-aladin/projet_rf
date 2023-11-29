@@ -86,11 +86,7 @@ public class DataReader {
             }
 
             Sample sample = samples.get(sampleIndex);
-            for (Float measure : sample.getMeasures()) {
-                System.out.print(measure + " ");
-            }
-
-            System.out.println(); // Next line when finished printing current sample measures
+            System.out.println(sample.toString());
         }
     }
 }

@@ -40,10 +40,16 @@ public class App {
 
         Sample sample1 = dataSetGFD.get(0);
         Sample sample2 = dataSetGFD.get(1);
+
         System.out.println(sample1.isLabelEqualTo(sample2));
 
+        System.out.println("Minkowski distance between sample 1 and 2 for p=2: "
+                + sample1.calculateMinkowskiDistance(sample2,2));
+
         Sample sampleN = dataSetGFD.get(dataSetGFD.size() - 1);
+
         System.out.println(sample1.isLabelEqualTo(sampleN));
+
         System.out.println("Sample 1's class: " + sample1.getLabelNumber()
                 + "\nSample 99's class: " + sampleN.getLabelNumber());
     }
