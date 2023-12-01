@@ -1,6 +1,6 @@
 package input_output;
 
-import data.Sample;
+import data.Pattern;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -9,22 +9,35 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
+ * The {@code DataReader} class is responsible for reading pattern measures from files and creating a dataset.
+ * It provides methods to read features from files, retrieve the dataset, and print features.
  *
+ * <p>The class uses constants for the number of classes and patterns, and it requires a file path and extension
+ * for reading data from files.
+ * It utilizes the {@code Pattern} class to represent the image patterns which will constitute the dataset.
+ *
+ * @author [Latif Yaya, Kentaro Sauce]
+ * @version 1.0
  */
 public class DataReader {
 
-    // Constants
+    /** The constant AMOUNT_OF_CLASSES representing the number of classes in the dataset. */
     static final int AMOUNT_OF_CLASSES = 9;
-    static final int AMOUNT_OF_SAMPLES = 11;
 
-    // Class variables
+    /** The constant AMOUNT_OF_PATTERNS representing the number of patterns in each class. */
+    static final int AMOUNT_OF_PATTERNS = 11;
+
+    /** The file path to the pattern data. */
     private final String filePath;
+
+    /** The file extension representing the applied image analysis method. For example, ".E34", ".F0"... */
     private final String fileExtension;
 
     /**
+     * Instantiates a new Data reader with the specified file path and extension.
      *
-     * @param filePath
-     * @param fileExtension
+     * @param filePath      The file path to the pattern data.
+     * @param fileExtension The file extension representing the applied image analysis method.
      */
     public DataReader(String filePath, String fileExtension) {
         this.filePath = filePath;
@@ -32,61 +45,66 @@ public class DataReader {
     }
 
     /**
+     * Reads sample measures from the specified file.
      *
-     * @param fileName
-     * @return
+     * @param fileName The name of the file to read from.
+     * @return A List of Float values representing the features read from the file.
      */
-    public List<Float> readSampleMeasuresFromFile(String fileName) {
-        List<Float> measures = new ArrayList<>();
+    public List<Float> readFeaturesFromFile(String fileName) {
+        List<Float> features = new ArrayList<>();
 
         try (BufferedReader reader = new BufferedReader(new FileReader(fileName))) {
             String line;
             while ((line = reader.readLine()) != null) {
-                measures.add(Float.parseFloat(line));
+                features.add(Float.parseFloat(line));
             }
         } catch (IOException | NumberFormatException e) {
             e.printStackTrace();
         }
 
-        return measures;
+        return features;
     }
 
     /**
+     * Retrieves the dataset by reading features from files and creating the corresponding Pattern objects.
      *
-     * @return
+     * @return A List of Pattern objects representing the dataset.
+     * @see Pattern
      */
-    public List<Sample> getDataSet() {
-        List<Sample> samples = new ArrayList<>();
+    public List<Pattern> getDataSet() {
+        List<Pattern> patterns = new ArrayList<>();
 
         for (int classIndex = 1; classIndex <= AMOUNT_OF_CLASSES; classIndex++) {
-            for (int sampleIndex = 1; sampleIndex <= AMOUNT_OF_SAMPLES; sampleIndex++) {
-                List<Float> sampleMeasures = readSampleMeasuresFromFile(
+            for (int patternIndex = 1; patternIndex <= AMOUNT_OF_PATTERNS; patternIndex++) {
+                List<Float> features = readFeaturesFromFile(
                         this.filePath
                                 + "S" + String.format("%02d", classIndex)
-                                + "N" + String.format("%03d", sampleIndex)
+                                + "N" + String.format("%03d", patternIndex)
                                 + this.fileExtension);
-                samples.add(new Sample(sampleMeasures, classIndex));
+                patterns.add(new Pattern(features, classIndex));
             }
         }
 
-        return samples;
+        return patterns;
     }
 
     /**
+     * Prints the features of the given patterns grouped into their corresponding image classes.
      *
-     * @param samples
+     * @param patterns The List of Pattern objects whose features need to be printed.
+     * @see Pattern
      */
-    public static void printMeasures(List<Sample> samples) {
+    public static void printFeatures(List<Pattern> patterns) {
         System.out.println("Affichage du tableau de mesures :");
 
-        int totalAmountOfSamples = AMOUNT_OF_SAMPLES * AMOUNT_OF_CLASSES;
-        for (int sampleIndex = 0; sampleIndex < totalAmountOfSamples; sampleIndex++) {
-            if (sampleIndex % AMOUNT_OF_SAMPLES == 0) {
-                System.out.println("\n- Classe " + (sampleIndex / AMOUNT_OF_SAMPLES + 1) + " :");
+        int totalAmountOfPatterns = AMOUNT_OF_PATTERNS * AMOUNT_OF_CLASSES;
+        for (int patternIndex = 0; patternIndex < totalAmountOfPatterns; patternIndex++) {
+            if (patternIndex % AMOUNT_OF_PATTERNS == 0) {
+                System.out.println("\n- Class " + (patternIndex / AMOUNT_OF_PATTERNS + 1) + ":");
             }
 
-            Sample sample = samples.get(sampleIndex);
-            System.out.println(sample.toString());
+            Pattern pattern = patterns.get(patternIndex);
+            System.out.println(pattern.toString());
         }
     }
 }
