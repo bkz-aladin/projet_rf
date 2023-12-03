@@ -32,11 +32,12 @@ public class App {
         List<Pattern> trainSet = ClassifierUtilities.splitData(dataSetGFD, 0.8f)[0];
         List<Pattern> testSet = ClassifierUtilities.splitData(dataSetGFD, 0.8f)[1];
 
+        DataReader.printFeatures(trainSet);
         KNNClassifier classifier = new KNNClassifier(trainSet);
         for(Pattern testSample : testSet)
         {
             int labelGuessed = classifier.classify(testSample, 10);
-            System.out.println("Classe des knn : " +labelGuessed + ". Classe réelle : " + testSample.getLabelNumber());
+//            System.out.println("Classe des knn : " +labelGuessed + ". Classe réelle : " + testSample.getLabelNumber());
         }
 
 //        System.out.println(pattern1.isLabelEqualTo(pattern2));
