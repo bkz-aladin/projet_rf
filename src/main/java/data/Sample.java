@@ -3,20 +3,20 @@ package data;
 import java.util.List;
 
 /**
- * The {@code Pattern} class represents TODO:
+ * The {@code Sample} class represents TODO:
  *
- * <p>This class includes methods to access and manipulate the features and label of a pattern.
+ * <p>This class includes methods to access and manipulate the features and label of a sample.
  *
  * @author [Latif Yaya, Kentaro Sauce]
  * @version 1.0
  */
-public class Pattern {
+public class Sample {
 
-    /** The list of floating-point values representing the features of the pattern. */
+    /** The list of floating-point values representing the features of the sample. */
     private List<Float> features;
 
     /**
-     * Enum representing possible label names associated with a pattern.
+     * Enum representing possible label names associated with a sample.
      * Labels include UNLABELED, POISSON, LAPIN, SILHOUETTE, AVION, MAIN, OUTIL, BIDULE, ANIMAL, and RAIE.
      */
     private enum LabelName {
@@ -32,54 +32,54 @@ public class Pattern {
         RAIE
     }
 
-    /** The label associated with the pattern, represented by a LabelName enum. */
+    /** The label associated with the sample, represented by a LabelName enum. */
     private LabelName label;
 
     /**
-     * Constructs a Pattern with the specified features and label number.
+     * Constructs a Sample with the specified features and label number.
      * The label number corresponds to the index of the desired label inside the LabelName constant group:
      * 1 -> POISSON, 2 -> LAPIN, 3 -> SILHOUETTE, 4 -> AVION, 5 -> MAIN, 6 -> OUTIL,
      * 7 -> BIDULE, 8 -> ANIMAL, 9 -> RAIE, 0 -> UNLABELED.
      *
-     * @param features    A list of Float values representing the features of the pattern.
-     * @param labelNumber An integer indicating the label number of the desired label associated with the pattern.
+     * @param features    A list of Float values representing the features of the sample.
+     * @param labelNumber An integer indicating the label number of the desired label associated with the sample.
      */
-    public Pattern(List<Float> features, int labelNumber) {
+    public Sample(List<Float> features, int labelNumber) {
         setFeatures(features);
         setLabel(labelNumber);
     }
 
     /**
-     * Constructs a Pattern with the specified features while associating it the default label: UNLABELED.
+     * Constructs a Sample with the specified features while associating it the default label: UNLABELED.
      *
-     * @param features A list of Float values representing the features of the pattern.
+     * @param features A list of Float values representing the features of the sample.
      */
-    public Pattern(List<Float> features) {
+    public Sample(List<Float> features) {
         this(features, 0);
     }
 
     /**
-     * Retrieves the list of features associated with this pattern.
+     * Retrieves the list of features associated with this sample.
      *
-     * @return A List of Float values representing the features of the pattern.
+     * @return A List of Float values representing the features of the sample.
      */
     public List<Float> getFeatures() {
         return features;
     }
 
     /**
-     * Sets the list of features for this pattern.
+     * Sets the list of features for this sample.
      *
-     * @param features A List of Float values representing the features to be set for the pattern.
+     * @param features A List of Float values representing the features to be set for the sample.
      */
     public void setFeatures(List<Float> features) {
         this.features = features;
     }
 
     /**
-     * Retrieves a feature of this pattern from a given index.
+     * Retrieves a feature of this sample from a given index.
      *
-     * @param index An integer indicating the index of the feature from this pattern.
+     * @param index An integer indicating the index of the feature from this sample.
      * @return A float value representing the desired feature.
      */
     public float getFeature(int index) {
@@ -87,7 +87,7 @@ public class Pattern {
     }
 
     /**
-     * Retrieves the label number of the label associated with this pattern.
+     * Retrieves the label number of the label associated with this sample.
      * The label number corresponds to the index of the desired label inside the LabelName constant group:
      * 1 -> POISSON, 2 -> LAPIN, 3 -> SILHOUETTE, 4 -> AVION, 5 -> MAIN, 6 -> OUTIL,
      * 7 -> BIDULE, 8 -> ANIMAL, 9 -> RAIE, 0 -> UNLABELED.
@@ -99,7 +99,7 @@ public class Pattern {
     }
 
     /**
-     * Sets the label associated with this pattern from the label number.
+     * Sets the label associated with this sample from the label number.
      * The label number corresponds to the index of the desired label inside the LabelName constant group:
      * 1 -> POISSON, 2 -> LAPIN, 3 -> SILHOUETTE, 4 -> AVION, 5 -> MAIN, 6 -> OUTIL,
      * 7 -> BIDULE, 8 -> ANIMAL, 9 -> RAIE, 0 -> UNLABELED.
@@ -111,20 +111,20 @@ public class Pattern {
     }
 
     /**
-     * Checks if the label of this pattern is equal to the label of the specified pattern.
+     * Checks if the label of this sample is equal to the label of the specified sample.
      *
-     * @param pattern The pattern to compare the label with.
+     * @param sample The sample to compare the label with.
      * @return {@code true} if the labels are equal, {@code false} otherwise.
      */
-    public boolean isLabelEqualTo(Pattern pattern) {
-        return this.label == pattern.label;
+    public boolean isLabelEqualTo(Sample sample) {
+        return this.label == sample.label;
     }
 
     /**
-     * Returns a string representation of this pattern.
-     * The string includes the features of the pattern separated by spaces.
+     * Returns a string representation of this sample.
+     * The string includes the features of the sample separated by spaces.
      *
-     * @return A string representing the features of the pattern.
+     * @return A string representing the features of the sample.
      */
     @Override
     public String toString() {
@@ -141,21 +141,21 @@ public class Pattern {
     }
 
     /**
-     * Calculates the Minkowski distance (Lp norm) between this pattern and another pattern.
-     * The Minkowski metric is a general class of metrics for d-dimensional patterns.
+     * Calculates the Minkowski distance (Lp norm) between this sample and another sample.
+     * The Minkowski metric is a general class of metrics for d-dimensional samples.
      * It includes the Euclidean distance (p=2) and the Manhattan distance (p=1).
      *
-     * @param pattern2 The second pattern to calculate the distance to.
+     * @param sample2 The second sample to calculate the distance to.
      * @param p The order of the Minkowski norm, influencing the calculation.
-     * @return The Minkowski distance between the two patterns.
+     * @return The Minkowski distance between the two samples.
      * @throws IllegalArgumentException If p is less than 1.
-     * @throws IllegalArgumentException If the dimensions of the patterns are not equal.
+     * @throws IllegalArgumentException If the dimensions of the samples are not equal.
      */
-    public float calculateMinkowskiDistance(Pattern pattern2, int p) {
-        int dimensionsOfPattern1 = this.getFeatures().size();
-        int dimensionsOfPattern2 = pattern2.getFeatures().size();
-        if (dimensionsOfPattern1 != dimensionsOfPattern2) {
-            throw new IllegalArgumentException("The two patterns must be of equal dimensions.");
+    public float calculateMinkowskiDistance(Sample sample2, int p) {
+        int dimensionsOfSample1 = this.getFeatures().size();
+        int dimensionsOfSample2 = sample2.getFeatures().size();
+        if (dimensionsOfSample1 != dimensionsOfSample2) {
+            throw new IllegalArgumentException("The two samples must be of equal dimensions.");
         }
         if (p < 1) {
             throw new IllegalArgumentException("The order of the Minkowski norm p must be greater or equal to 1.");
@@ -163,9 +163,9 @@ public class Pattern {
 
         float sum = 0.0f;
         float coordinate1, coordinate2;
-        for (int dimension = 1; dimension <= dimensionsOfPattern2; dimension++) {
+        for (int dimension = 1; dimension <= dimensionsOfSample2; dimension++) {
             coordinate1 = this.getFeature(dimension - 1);
-            coordinate2 = pattern2.getFeature(dimension - 1);
+            coordinate2 = sample2.getFeature(dimension - 1);
             sum += (float) Math.pow(Math.abs(coordinate1 - coordinate2), p);
         }
 

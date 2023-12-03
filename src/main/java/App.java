@@ -1,6 +1,9 @@
-import data.Pattern;
+import classifiers.ClassifierUtilities;
+import classifiers.KNNClassifier;
+import data.Sample;
 import input_output.DataReader;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class App {
@@ -14,29 +17,46 @@ public class App {
         DataReader readerSA = new DataReader("../data/SA/", ".sa");
 
         // Initializing datasets for each image analysis method.
-        List<Pattern> dataSetE34 = readerE34.getDataSet();
-        List<Pattern> dataSetF0 = readerF0.getDataSet();
-        List<Pattern> dataSetGFD = readerGFD.getDataSet();
-        List<Pattern> dataSetSA = readerSA.getDataSet();
+        List<Sample> dataSetE34 = readerE34.getDataSet();
+        List<Sample> dataSetF0 = readerF0.getDataSet();
+        List<Sample> dataSetGFD = readerGFD.getDataSet();
+        List<Sample> dataSetSA = readerSA.getDataSet();
 
 
         /*--------------------------------------- tests ---------------------------------------*/
 
-        DataReader.printFeatures(dataSetGFD);
+//        DataReader.printFeatures(dataSetGFD);
+//
+//        Sample sample1 = dataSetGFD.get(0);
+//        Sample sample2 = dataSetGFD.get(1);
+//
+//        System.out.println(sample1.isLabelEqualTo(sample2));
+//
+//        System.out.println("Minkowski distance between sample 1 and sample 2 for p=2: "
+//                + sample1.calculateMinkowskiDistance(sample2,2));
+//
+//        Sample sampleN = dataSetGFD.get(dataSetGFD.size() - 1);
+//
+//        System.out.println(sample1.isLabelEqualTo(sampleN));
+//
+//        System.out.println("Sample 1's image class: " + sample1.getLabelNumber()
+//                + "\nSample 99's image class: " + sampleN.getLabelNumber());
 
-        Pattern pattern1 = dataSetGFD.get(0);
-        Pattern pattern2 = dataSetGFD.get(1);
+        List<Sample>[] dataSet = ClassifierUtilities.splitData(dataSetGFD, 0.8f);
+        List<Sample> trainingSet = dataSet[0];
+        List<Sample> testSet = dataSet[1];
+        KNNClassifier classifier = new KNNClassifier(trainingSet);
 
-        System.out.println(pattern1.isLabelEqualTo(pattern2));
+        int k = 5, p = 2;
+        List<Integer> testLabels = new ArrayList<>();
+        for (Sample testSample : testSet) {
+            testLabels.add(classifier.classify(testSample, k, p));
+        }
+        for (int i = 0; i < testSet.size(); i++) {
+            int testLabel = testLabels.get(i);
+            int trueLabel = testSet.get(i).getLabelNumber();
+            System.out.println(trueLabel + " == " + testLabel + " ? " + (testLabel == trueLabel));
+        }
 
-        System.out.println("Minkowski distance between pattern 1 and pattern 2 for p=2: "
-                + pattern1.calculateMinkowskiDistance(pattern2,2));
-
-        Pattern patternN = dataSetGFD.get(dataSetGFD.size() - 1);
-
-        System.out.println(pattern1.isLabelEqualTo(patternN));
-
-        System.out.println("Pattern 1's image class: " + pattern1.getLabelNumber()
-                + "\nPattern 99's image class: " + patternN.getLabelNumber());
     }
 }
