@@ -1,14 +1,14 @@
 package classifiers;
 
-import data.Pattern;
+import data.Sample;
 
 import java.util.*;
 
 public class KNNClassifier {
 
-    List<Pattern> trainingSet;
+    List<Sample> trainingSet;
 
-    public KNNClassifier(List<Pattern> trainingSet)
+    public KNNClassifier(List<Sample> trainingSet)
     {
         this.trainingSet = trainingSet;
     }
@@ -31,11 +31,9 @@ public class KNNClassifier {
         return Math.sqrt(distance);
     }
 
-    public int classify(Pattern testSample, int k) {
+    public int classify(Sample testSample, int k, int p) {
         // Trier les échantillons en fonction de leur distance par rapport à l'échantillon de test
-        trainingSet.sort((a, b) ->
-                Double.compare(calculateDistance(a.getFeatures(), testSample.getFeatures()),
-                        calculateDistance(b.getFeatures(), testSample.getFeatures())));
+        trainingSet.sort(Comparator.comparingDouble(a -> a.calculateMinkowskiDistance(testSample, p)));
 
         // Compter les occurrences de chaque classe parmi les k plus proches voisins
         Map<Integer, Integer> classCounts = new HashMap<>();
