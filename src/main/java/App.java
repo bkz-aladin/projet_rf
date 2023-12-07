@@ -4,7 +4,9 @@ import data.Sample;
 import input_output.DataReader;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class App {
 
@@ -25,7 +27,7 @@ public class App {
 
         /*--------------------------------------- tests ---------------------------------------*/
 
-       DataReader.printFeatures(dataSetGFD);
+//       DataReader.printFeatures(dataSetGFD);
 //
 //        Sample sample1 = dataSetGFD.get(0);
 //        Sample sample2 = dataSetGFD.get(1);
@@ -46,22 +48,20 @@ public class App {
         List<Sample> trainingSet = dataSet[0];
         List<Sample> testSet = dataSet[1];
 
+//        ClassifierUtilities.exportToCSV(trainingSet, "./train.csv");
+//        ClassifierUtilities.exportToCSV(testSet, "./test.csv");
+//        ClassifierUtilities.exportLabelsToCSV(trainingSet, "./labelTrain.csv");
+//        ClassifierUtilities.exportLabelsToCSV(testSet, "./labelTest.csv");
 
-        ClassifierUtilities.exportToCSV(trainingSet, "./train.csv");
-        ClassifierUtilities.exportToCSV(trainingSet, "./test.csv");
+
         //DataReader.printFeatures(trainingSet);
-//        KNNClassifier classifier = new KNNClassifier(trainingSet);
-//
-//        int k = 5, p = 2;
-//        List<Integer> testLabels = new ArrayList<>();
-//        for (Sample testSample : testSet) {
-//            testLabels.add(classifier.classify(testSample, k, p));
-//        }
-//        for (int i = 0; i < testSet.size(); i++) {
-//            int testLabel = testLabels.get(i);
-//            int trueLabel = testSet.get(i).getLabelNumber();
-//            System.out.println(trueLabel + " == " + testLabel + " ? " + (testLabel == trueLabel));
-//        }
+        KNNClassifier classifier = new KNNClassifier(trainingSet);
 
+        Map<Integer, Double> scores = new HashMap<>();
+        for (int i=1; i <= 20; i++){
+            scores.put(i, classifier.score(testSet, i, 2));
+        }
+
+        System.out.println(scores);
     }
 }

@@ -67,4 +67,23 @@ public final class ClassifierUtilities {
 
     }
 
+    public static void exportLabelsToCSV(List<Sample> samples, String filePath) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(filePath))) {
+            // Écrire l'en-tête CSV (si nécessaire)
+            writer.write("Label"); // Ajoutez le nom de votre colonne de labels
+            writer.newLine();
+
+            // Écrire les labels des échantillons dans le fichier CSV
+            for (Sample sample : samples) {
+                int label = sample.getLabelNumber();
+                writer.write(String.valueOf(label));
+                writer.newLine();
+            }
+
+            System.out.println("Exportation réussie vers " + filePath);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
 }

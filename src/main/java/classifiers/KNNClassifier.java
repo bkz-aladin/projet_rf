@@ -49,4 +49,19 @@ public class KNNClassifier {
         // Retourner la classe majoritaire parmi les k plus proches voisins
         return Collections.max(classCounts.entrySet(), Map.Entry.comparingByValue()).getKey();
     }
+
+    public double score(List<Sample> testSet, int k , int p) {
+        int correctPredictions = 0;
+
+        for (Sample testSample : testSet) {
+            int predictedLabel = classify(testSample, k, p);
+            if (predictedLabel == testSample.getLabelNumber()) {
+                correctPredictions++;
+            }
+        }
+
+        // Calculer le taux de précision
+        return (double) correctPredictions / testSet.size();
+    }
+
 }
