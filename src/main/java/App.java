@@ -59,7 +59,7 @@ public class App {
 
         Map<Integer, Double> scores = new HashMap<>();
         for (int i=1; i <= 20; i++){
-            scores.put(i, classifier.score(testSet, i, 2));
+            scores.put(i, classifier.crossValidation(dataSetGFD, 5, i,2));
         }
 
         System.out.println(scores);
