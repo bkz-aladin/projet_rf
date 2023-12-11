@@ -7,31 +7,21 @@ import java.util.*;
 public class KNNClassifier {
 
 //    List<Sample> trainingSet;
+    int k;
+    int p;
 
-    public KNNClassifier(List<Sample> trainingSet)
+    public KNNClassifier()
     {
-        this.trainingSet = trainingSet;
+        k = 5;
+        p = 2;
+    }
+    public KNNClassifier(int n_neighbors, int p_dist)
+    {
+        k = n_neighbors;
+        p = p_dist;
     }
 
-    private double calculateDistance(List<Float> measures1, List<Float> measures2)
-    {
-        // Assurez-vous que les deux listes ont la même taille
-        if (measures1.size() != measures2.size())
-        {
-            throw new IllegalArgumentException("Les listes de mesures doivent avoir la même taille.");
-        }
-
-        double distance = 0.0;
-        for (int i = 0; i < measures1.size(); i++)
-        {
-            double diff = measures1.get(i) - measures2.get(i);
-            distance += diff * diff;
-        }
-
-        return Math.sqrt(distance);
-    }
-
-    public int classify(Sample testSample, int k, int p) {
+    private int classify(List<Sample> trainingSet,Sample testSample) {
         // Trier les échantillons en fonction de leur distance par rapport à l'échantillon de test
         trainingSet.sort(Comparator.comparingDouble(a -> a.calculateMinkowskiDistance(testSample, p)));
 
@@ -50,11 +40,11 @@ public class KNNClassifier {
         return Collections.max(classCounts.entrySet(), Map.Entry.comparingByValue()).getKey();
     }
 
-    public double score(List<Sample> testSet, int k , int p) {
+    public double score(List<Sample> trainingSet, List<Sample> testSet) {
         int correctPredictions = 0;
 
         for (Sample testSample : testSet) {
-            int predictedLabel = classify(testSample, k, p);
+            int predictedLabel = classify(trainingSet ,testSample);
             if (predictedLabel == testSample.getLabelNumber()) {
                 correctPredictions++;
             }
@@ -64,10 +54,10 @@ public class KNNClassifier {
         return (double) correctPredictions / testSet.size();
     }
 
-    public double crossValidation(List<Sample> dataSet, int folds, int k, int p) {
+    public double crossValidation(List<Sample> dataSet, int folds) {
         // Mélanger l'ensemble de données
         List<Sample> shuffledData = new ArrayList<>(dataSet);
-        Collections.shuffle(shuffledData, new Random(123));
+        Collections.shuffle(shuffledData);
 
         // Diviser l'ensemble de données en 'folds' sous-ensembles
         int foldSize = shuffledData.size() / folds;
@@ -93,15 +83,16 @@ public class KNNClassifier {
             }
 
             // Créer un classificateur avec l'ensemble d'entraînement
-            KNNClassifier knnClassifier = new KNNClassifier(trainingSet);
 
             // Évaluer le classificateur sur l'ensemble de validation
-            double accuracy = knnClassifier.score(validationSet, k, p);
+            double accuracy = this.score(trainingSet, validationSet);
             totalAccuracy += accuracy;
         }
 
         // Calculer la précision moyenne sur tous les plis
         return totalAccuracy / folds;
     }
+
+
 
 }
