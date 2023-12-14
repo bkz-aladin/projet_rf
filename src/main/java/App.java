@@ -4,7 +4,9 @@ import data.Sample;
 import input_output.DataReader;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class App {
 
@@ -20,43 +22,54 @@ public class App {
         List<Sample> dataSetE34 = readerE34.getDataSet();
         List<Sample> dataSetF0 = readerF0.getDataSet();
         List<Sample> dataSetGFD = readerGFD.getDataSet();
-        List<Sample> dataSetSA = readerSA.getDataSet();
+            List<Sample> dataSetSA = readerSA.getDataSet();
 
 
         /*--------------------------------------- tests ---------------------------------------*/
 
-//        DataReader.printFeatures(dataSetGFD);
-//
-//        Sample sample1 = dataSetGFD.get(0);
-//        Sample sample2 = dataSetGFD.get(1);
-//
-//        System.out.println(sample1.isLabelEqualTo(sample2));
-//
-//        System.out.println("Minkowski distance between sample 1 and sample 2 for p=2: "
-//                + sample1.calculateMinkowskiDistance(sample2,2));
-//
-//        Sample sampleN = dataSetGFD.get(dataSetGFD.size() - 1);
-//
-//        System.out.println(sample1.isLabelEqualTo(sampleN));
-//
-//        System.out.println("Sample 1's image class: " + sample1.getLabelNumber()
-//                + "\nSample 99's image class: " + sampleN.getLabelNumber());
-
-        List<Sample>[] dataSet = ClassifierUtilities.splitData(dataSetGFD, 0.8f);
+        List<Sample>[] dataSet = ClassifierUtilities.splitData(dataSetSA, 0.8f);
         List<Sample> trainingSet = dataSet[0];
         List<Sample> testSet = dataSet[1];
-        KNNClassifier classifier = new KNNClassifier(trainingSet);
 
-        int k = 5, p = 2;
-        List<Integer> testLabels = new ArrayList<>();
-        for (Sample testSample : testSet) {
-            testLabels.add(classifier.classify(testSample, k, p));
+        int[] pValues = {1, 2};
+        double bestAccuracy = Double.MIN_VALUE;
+        int bestK = -1;
+        int bestP = -1;
+
+        for (int k = 2; k<= 20; k++) {
+            for (int p : pValues) {
+                KNNClassifier knnClassifier = new KNNClassifier(k, p);
+                double averageAccuracy = knnClassifier.crossValidation(trainingSet, 5);
+
+                // Mettre à jour les meilleurs hyperparamètres si la précision est améliorée
+                if (averageAccuracy > bestAccuracy) {
+                    bestAccuracy = averageAccuracy;
+                    bestK = k;
+                    bestP = p;
+                }
+            }
         }
-        for (int i = 0; i < testSet.size(); i++) {
-            int testLabel = testLabels.get(i);
-            int trueLabel = testSet.get(i).getLabelNumber();
-            System.out.println(trueLabel + " == " + testLabel + " ? " + (testLabel == trueLabel));
-        }
+
+
+
+        System.out.println("Meilleurs hyperparamètres : k = " + bestK + ", p = " + bestP);
+        System.out.println("Précision moyenne correspondante : " + bestAccuracy);
+
+        KNNClassifier knnClassifier = new KNNClassifier(bestK, bestP);
+        double realScore = knnClassifier.score(trainingSet, testSet);
+        System.out.println(realScore);
+
+
+
+//        Map<Integer, Double> scores = new HashMap<>();
+//        for (int i=1; i <= 20; i++){
+//            scores.put(i, (new KNNClassifier(i, 2)).crossValidation(trainingSet, 5));
+//        }
+//
+//        KNNClassifier classifier = new KNNClassifier(1, 2);
+//        System.out.println(classifier.score(testSet, trainingSet));
+//
+//        System.out.println(scores);
 
     }
 }
