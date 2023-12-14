@@ -33,7 +33,9 @@ public class KNNClassifier {
 
     public int classify(Sample testSample, int k, int p) {
         // Trier les échantillons en fonction de leur distance par rapport à l'échantillon de test
-        trainingSet.sort(Comparator.comparingDouble(a -> a.calculateMinkowskiDistance(testSample, p)));
+        trainingSet.sort(Comparator.comparingDouble
+                (a -> ClassifierUtilities.calculateMinkowskiDistance
+                        (a.getFeatures(), testSample.getFeatures(), p)));
 
         // Compter les occurrences de chaque classe parmi les k plus proches voisins
         Map<Integer, Integer> classCounts = new HashMap<>();
