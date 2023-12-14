@@ -28,15 +28,36 @@ public class KMeans {
     }
 
     public static Map<Centroid, List<Sample>> getClustersOfSamples
-            (List<Sample> trainingSet, int k, int p, int maxIterations) {
-        List<Centroid> centroids = getRandomCentroids(trainingSet, k);
+            (List<Sample> samples, int k, int p, int maxIterations) {
+
+        List<Centroid> centroids = getRandomCentroids(samples, k);
+
         Map<Centroid, List<Sample>> clusters = new HashMap<>();
+        Map<Centroid, List<Sample>> previousClustersState = new HashMap<>();
 
+        // iterate for a pre-defined number of times
         for (int i = 0; i < maxIterations; i++) {
+            boolean isLastIteration = (i == maxIterations - 1);
 
+            // in each iteration, we should find the nearest centroid for each sample
+            for (Sample sample : samples) {
+                Centroid centroid = nearestCentroid(sample, centroids, p);
+                assignSampleToNewCluster(clusters, sample, centroid);
+            }
+
+            // if the assignments do not change, then the algorithm terminates
+            boolean shouldTerminate = isLastIteration || clusters.equals(previousClustersState);
+            previousClustersState = clusters;
+            if (shouldTerminate) {
+                break;
+            }
+
+            // at the end of each iteration, we should relocate the centroids
+            centroids = relocateCentroids(clusters);
+            clusters = new HashMap<>();
         }
 
-        return null;
+        return previousClustersState;
     }
 
     private static List<Map.Entry<Float, Float>> getPairsOfMinimumAndMaximumAttributes(List<Sample> samples) {
@@ -68,9 +89,9 @@ public class KMeans {
         List<Map.Entry<Float, Float>> minimumAndMaximumAttributes
                 = getPairsOfMinimumAndMaximumAttributes(trainingSet);
 
-        List<Float> centroidCoordinates = new ArrayList<>();
-
         for (int clusterIndex = 0; clusterIndex < k; clusterIndex++) {
+            List<Float> centroidCoordinates = new ArrayList<>();
+
             for (Map.Entry<Float, Float> attributePair : minimumAndMaximumAttributes) {
                 float minimum = attributePair.getKey();
                 float maximum = attributePair.getValue();
@@ -104,21 +125,20 @@ public class KMeans {
 
     private static void assignSampleToNewCluster
             (Map<Centroid, List<Sample>> clusters, Sample sample, Centroid centroid) {
-        for (Map.Entry<Centroid, List<Sample>> cluster : clusters.entrySet()) {
-            cluster.getValue().remove(sample);
-        }
 
+        clusters.computeIfAbsent(centroid, k -> new ArrayList<>());
         clusters.get(centroid).add(sample);
     }
 
-    private static void relocateCentroidToCenterOfCluster(Centroid centroid, List<Sample> samples) {
+    private static Centroid relocateCentroidToCenterOfCluster(Centroid centroid, List<Sample> samples) {
         if (samples.isEmpty()) {
-            return;
+            return centroid;
         }
 
-        List<Float> averageCoordinates = centroid.getCoordinates();
+        List<Float> averageCoordinates = new ArrayList<>();
 
-        for (int featureIndex = 0; featureIndex < averageCoordinates.size(); featureIndex++) {
+        int totalSize = samples.getFirst().getFeatures().size();
+        for (int featureIndex = 0; featureIndex < totalSize; featureIndex++) {
             float sum = 0.0f;
 
             for (Sample sample : samples) {
@@ -129,6 +149,18 @@ public class KMeans {
             averageCoordinates.add(attributeAverage);
         }
 
-        centroid.setCoordinates(averageCoordinates);
+        return new Centroid(averageCoordinates);
+    }
+
+    private static List<Centroid> relocateCentroids(Map<Centroid, List<Sample>> clusters) {
+        List<Centroid> relocatedCentroids = new ArrayList<>();
+
+        for (Map.Entry<Centroid, List<Sample>> cluster : clusters.entrySet()) {
+            Centroid relocatedCentroid = relocateCentroidToCenterOfCluster
+                    (cluster.getKey(), cluster.getValue());
+            relocatedCentroids.add(relocatedCentroid);
+        }
+
+        return relocatedCentroids;
     }
 }

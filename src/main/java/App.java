@@ -1,4 +1,5 @@
 import classifiers.ClassifierUtilities;
+import classifiers.KMeans;
 import classifiers.KNNClassifier;
 import data.Sample;
 import input_output.DataReader;
@@ -59,7 +60,14 @@ public class App {
         double realScore = knnClassifier.score(trainingSet, testSet);
         System.out.println(realScore);
 
-
+        Map<KMeans.Centroid, List<Sample>> clusters = KMeans.getClustersOfSamples
+                (trainingSet, 9, 2, 500);
+        for (Map.Entry<KMeans.Centroid, List<Sample>> entry : clusters.entrySet()) {
+            for (Sample sample : entry.getValue()) {
+                System.out.print(sample.getLabelNumber());
+            }
+            System.out.println();
+        }
 
 //        Map<Integer, Double> scores = new HashMap<>();
 //        for (int i=1; i <= 20; i++){
