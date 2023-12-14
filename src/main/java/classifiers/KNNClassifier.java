@@ -23,11 +23,11 @@ public class KNNClassifier {
 
     private int classify(List<Sample> trainingSet,Sample testSample) {
         // Trier les échantillons en fonction de leur distance par rapport à l'échantillon de test
-        trainingSet.sort(Comparator.comparingDouble(a -> a.calculateMinkowskiDistance(testSample, p)));
+        trainingSet.sort(Comparator.comparingDouble(a -> a.calculateMinkowskiDistance(testSample, this.p)));
 
         // Compter les occurrences de chaque classe parmi les k plus proches voisins
         Map<Integer, Integer> classCounts = new HashMap<>();
-        for (int i = 0; i < k; i++) {
+        for (int i = 0; i < this.k; i++) {
             int label = trainingSet.get(i).getLabelNumber();
             classCounts.put(label, classCounts.getOrDefault(label, 0) + 1);
         }
@@ -93,6 +93,86 @@ public class KNNClassifier {
         return totalAccuracy / folds;
     }
 
+    public Map<String, Double> findBestHyperparameters(List<Sample> trainingSet, int[] pValues) {
+        int bestK = -1;
+        int bestP = -1;
+        double bestAccuracy = Double.MIN_VALUE;
 
+        for (int k = 1; k <= 20; k++) {
+            for (int p : pValues) {
+
+
+                KNNClassifier knnClassifier = new KNNClassifier(k, p);
+                double averageAccuracy = knnClassifier.crossValidation(trainingSet, 5);
+
+                // Mettre à jour les meilleurs hyperparamètres si la précision est améliorée
+                if (averageAccuracy >= bestAccuracy) {
+                    bestAccuracy = averageAccuracy;
+                    bestK = k;
+                    bestP = p;
+                }
+            }
+        }
+
+        // Stocker les meilleurs hyperparamètres dans un dictionnaire
+        Map<String, Double> bestHyperparameters = new HashMap<>();
+        bestHyperparameters.put("k", (double) bestK);
+        bestHyperparameters.put("p", (double) bestP);
+        bestHyperparameters.put("accuracy", bestAccuracy);
+
+        return bestHyperparameters;
+    }
+
+    public int[][] confusionMatrix(List<Sample> trainingSet, List<Sample> testSet, int numClasses) {
+        int[][] matrix = new int[numClasses][numClasses];
+
+        for (Sample testSample : testSet) {
+            int predictedLabel = classify(trainingSet ,testSample);
+            int actualLabel = testSample.getLabelNumber();
+            matrix[actualLabel][predictedLabel]++;
+        }
+
+        return matrix;
+    }
+
+    public double precision(List<Sample> trainingSet, List<Sample> testSet, int classToEvaluate) {
+        int truePositives = 0;
+        int falsePositives = 0;
+
+        for (Sample testSample : testSet) {
+            int predictedLabel = classify(trainingSet, testSample);
+            int actualLabel = testSample.getLabelNumber();
+
+            if (predictedLabel == classToEvaluate) {
+                if (actualLabel == classToEvaluate) {
+                    truePositives++;
+                } else {
+                    falsePositives++;
+                }
+            }
+        }
+
+        return (double) truePositives / (truePositives + falsePositives);
+    }
+
+    public double recall(List<Sample> trainingSet, List<Sample> testSet, int classToEvaluate) {
+        int truePositives = 0;
+        int falseNegatives = 0;
+
+        for (Sample testSample : testSet) {
+            int predictedLabel = classify(trainingSet, testSample);
+            int actualLabel = testSample.getLabelNumber();
+
+            if (actualLabel == classToEvaluate) {
+                if (predictedLabel == classToEvaluate) {
+                    truePositives++;
+                } else {
+                    falseNegatives++;
+                }
+            }
+        }
+
+        return (double) truePositives / (truePositives + falseNegatives);
+    }
 
 }

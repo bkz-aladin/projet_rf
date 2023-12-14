@@ -22,54 +22,33 @@ public class App {
         List<Sample> dataSetE34 = readerE34.getDataSet();
         List<Sample> dataSetF0 = readerF0.getDataSet();
         List<Sample> dataSetGFD = readerGFD.getDataSet();
-            List<Sample> dataSetSA = readerSA.getDataSet();
+        List<Sample> dataSetSA = readerSA.getDataSet();
 
 
         /*--------------------------------------- tests ---------------------------------------*/
 
-        List<Sample>[] dataSet = ClassifierUtilities.splitData(dataSetSA, 0.8f);
+        List<Sample>[] dataSet = ClassifierUtilities.splitData(dataSetE34, 0.8f);
         List<Sample> trainingSet = dataSet[0];
         List<Sample> testSet = dataSet[1];
 
-        int[] pValues = {1, 2};
-        double bestAccuracy = Double.MIN_VALUE;
-        int bestK = -1;
-        int bestP = -1;
+        KNNClassifier knnClassifier = new KNNClassifier(5, 2);
+        Map<String, Double> bestHyperparameters = knnClassifier.findBestHyperparameters(trainingSet, new int[]{1, 2});
 
-        for (int k = 2; k<= 20; k++) {
-            for (int p : pValues) {
-                KNNClassifier knnClassifier = new KNNClassifier(k, p);
-                double averageAccuracy = knnClassifier.crossValidation(trainingSet, 5);
-
-                // Mettre à jour les meilleurs hyperparamètres si la précision est améliorée
-                if (averageAccuracy > bestAccuracy) {
-                    bestAccuracy = averageAccuracy;
-                    bestK = k;
-                    bestP = p;
-                }
-            }
-        }
-
-
+        int bestK = bestHyperparameters.get("k").intValue();
+        int bestP = bestHyperparameters.get("p").intValue();
+        double bestAccuracy = bestHyperparameters.get("accuracy");
 
         System.out.println("Meilleurs hyperparamètres : k = " + bestK + ", p = " + bestP);
         System.out.println("Précision moyenne correspondante : " + bestAccuracy);
 
-        KNNClassifier knnClassifier = new KNNClassifier(bestK, bestP);
-        double realScore = knnClassifier.score(trainingSet, testSet);
-        System.out.println(realScore);
+//        Evaluation du modèle sur le testSet
+        KNNClassifier classifier = new KNNClassifier(bestK, bestP);
+        double realScore = classifier.score(trainingSet, testSet);
+        System.out.println("Précision du modèle sur le testSet :" + realScore);
+        for (int j=1; j<=9; j++){
+            System.out.println(classifier.precision(trainingSet, testSet, j));
+        }
 
-
-
-//        Map<Integer, Double> scores = new HashMap<>();
-//        for (int i=1; i <= 20; i++){
-//            scores.put(i, (new KNNClassifier(i, 2)).crossValidation(trainingSet, 5));
-//        }
-//
-//        KNNClassifier classifier = new KNNClassifier(1, 2);
-//        System.out.println(classifier.score(testSet, trainingSet));
-//
-//        System.out.println(scores);
 
     }
 }
