@@ -13,7 +13,7 @@ import java.util.List;
 public class Sample {
 
     /** The list of floating-point values representing the features of the sample. */
-    private List<Float> features;
+    protected List<Float> features;
 
     /**
      * Enum representing possible label names associated with a sample.
@@ -138,37 +138,5 @@ public class Sample {
         }
 
         return stringBuilder.toString();
-    }
-
-    /**
-     * Calculates the Minkowski distance (Lp norm) between this sample and another sample.
-     * The Minkowski metric is a general class of metrics for d-dimensional samples.
-     * It includes the Euclidean distance (p=2) and the Manhattan distance (p=1).
-     *
-     * @param sample2 The second sample to calculate the distance to.
-     * @param p The order of the Minkowski norm, influencing the calculation.
-     * @return The Minkowski distance between the two samples.
-     * @throws IllegalArgumentException If p is less than 1.
-     * @throws IllegalArgumentException If the dimensions of the samples are not equal.
-     */
-    public float calculateMinkowskiDistance(Sample sample2, int p) {
-        int dimensionsOfSample1 = this.getFeatures().size();
-        int dimensionsOfSample2 = sample2.getFeatures().size();
-        if (dimensionsOfSample1 != dimensionsOfSample2) {
-            throw new IllegalArgumentException("The two samples must be of equal dimensions.");
-        }
-        if (p < 1) {
-            throw new IllegalArgumentException("The order of the Minkowski norm p must be greater or equal to 1.");
-        }
-
-        float sum = 0.0f;
-        float coordinate1, coordinate2;
-        for (int dimension = 1; dimension <= dimensionsOfSample2; dimension++) {
-            coordinate1 = this.getFeature(dimension - 1);
-            coordinate2 = sample2.getFeature(dimension - 1);
-            sum += (float) Math.pow(Math.abs(coordinate1 - coordinate2), p);
-        }
-
-        return (float) Math.pow(sum, 1.0 / p);
     }
 }
