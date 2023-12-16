@@ -4,10 +4,7 @@ import classifiers.KNNClassifier;
 import data.Sample;
 import input_output.DataReader;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class App {
 
@@ -51,8 +48,6 @@ public class App {
             }
         }
 
-
-
         System.out.println("Meilleurs hyperparamètres : k = " + bestK + ", p = " + bestP);
         System.out.println("Précision moyenne correspondante : " + bestAccuracy);
 
@@ -60,24 +55,24 @@ public class App {
         double realScore = knnClassifier.score(trainingSet, testSet);
         System.out.println(realScore);
 
-        Map<KMeans.Centroid, List<Sample>> clusters = KMeans.getClustersOfSamples
-                (trainingSet, 9, 2, 500);
-        for (Map.Entry<KMeans.Centroid, List<Sample>> entry : clusters.entrySet()) {
-            for (Sample sample : entry.getValue()) {
-                System.out.print(sample.getLabelNumber());
-            }
-            System.out.println();
-        }
 
-//        Map<Integer, Double> scores = new HashMap<>();
-//        for (int i=1; i <= 20; i++){
-//            scores.put(i, (new KNNClassifier(i, 2)).crossValidation(trainingSet, 5));
+        int k = 9;
+        int maxIterations = 100;
+        boolean usingPP = true;
+        int distanceNorm = 2;
+        int randomSeed = 123; // optional
+
+        KMeans kMeans = new KMeans(k, dataSetGFD, usingPP, maxIterations, distanceNorm, randomSeed);
+        kMeans.runKMeans();
+
+        List<KMeans.Cluster> clusters = kMeans.getClusters();
+
+//        for (int i = 0; i < clusters.size(); i++) {
+//            System.out.println("Cluster " + (i + 1) + ":");
+//            for (Sample sample : clusters.get(i).getSamples()) {
+//                System.out.println(sample);
+//            }
+//            System.out.println();
 //        }
-//
-//        KNNClassifier classifier = new KNNClassifier(1, 2);
-//        System.out.println(classifier.score(testSet, trainingSet));
-//
-//        System.out.println(scores);
-
     }
 }

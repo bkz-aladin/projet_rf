@@ -32,11 +32,11 @@ public final class ClassifierUtilities {
             throw new IllegalArgumentException("The order of the Minkowski norm p must be greater or equal to 1.");
         }
 
-        float sum = 0.0f;
+        double sum = 0.0;
         for (int dimension = 1; dimension <= coordinates2.size(); dimension++) {
-            float coordinate1 = coordinates1.get(dimension - 1);
-            float coordinate2 = coordinates2.get(dimension - 1);
-            sum += (float) Math.pow(Math.abs(coordinate1 - coordinate2), p);
+            double coordinate1 = coordinates1.get(dimension - 1);
+            double coordinate2 = coordinates2.get(dimension - 1);
+            sum += Math.pow(Math.abs(coordinate1 - coordinate2), p);
         }
 
         return (float) Math.pow(sum, 1.0 / p);
