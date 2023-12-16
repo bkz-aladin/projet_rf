@@ -44,7 +44,7 @@ public final class ClassifierUtilities {
 
     public static List<Sample>[] splitData(List<Sample> dataSet, float trainSetRatio) {
         // Mélanger les échantillons de manière aléatoire
-        Collections.shuffle(dataSet, new Random(123));
+        Collections.shuffle(dataSet, new Random(5));
 
         // Calculer les indices pour la division
         int totalSize = dataSet.size();

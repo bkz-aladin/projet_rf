@@ -96,22 +96,31 @@ public class KNNClassifier {
         int bestK = -1;
         int bestP = -1;
         double bestAccuracy = Double.MIN_VALUE;
+        List<Double> accuracyValues = new ArrayList<>();
 
         for (int k = 1; k <= 20; k++) {
             for (int p : pValues) {
 
-                for (int i=1 ; i <= 10; i++)
+                for (int i=1 ; i <= 15; i++)
                 {
 
                     KNNClassifier knnClassifier = new KNNClassifier(k, p);
-                    double averageAccuracy = knnClassifier.crossValidation(trainingSet, 6);
+                    double accuracy = knnClassifier.crossValidation(trainingSet, 6);
 
+                    accuracyValues.add(accuracy);
                     // Mettre à jour les meilleurs hyperparamètres si la précision est améliorée
-                    if (averageAccuracy >= bestAccuracy) {
-                        bestAccuracy = averageAccuracy;
-                        bestK = k;
-                        bestP = p;
-                    }
+
+                }
+
+                double averageAccuracy = accuracyValues.stream()
+                        .mapToDouble(d -> d)
+                        .average()
+                        .orElse(0.0);
+
+                if (averageAccuracy >= bestAccuracy) {
+                    bestAccuracy = averageAccuracy;
+                    bestK = k;
+                    bestP = p;
                 }
             }
         }

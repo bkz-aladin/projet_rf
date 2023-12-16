@@ -118,7 +118,8 @@ public class App {
         for (int j = 1; j <= 9; j++) {
             double precision = classifier.precision(trainingSet, testSet, j);
             double recall = classifier.recall(trainingSet, testSet, j);
-            System.out.println("Taux de reconnaissance de la classe " + j + " est de " + precision + " et le rappel : " + recall);
+            double f1_score = classifier.f1Score(trainingSet, testSet, j);
+            System.out.println("Classe " + j + ": P = " + precision + " R = " + recall +" FM = " + f1_score);
         }
         System.out.println();
     }
