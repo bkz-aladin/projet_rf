@@ -116,10 +116,10 @@ public class App {
 
         // Calcul et affichage de la précision et du rappel pour chaque classe
         for (int j = 1; j <= 9; j++) {
-            double precision = classifier.precision(trainingSet, testSet, j);
-            double recall = classifier.recall(trainingSet, testSet, j);
-            double f1_score = classifier.f1Score(trainingSet, testSet, j);
-            System.out.println("Classe " + j + ": P = " + precision + " R = " + recall +" FM = " + f1_score);
+            String precision = String.format("%.2f", classifier.precision(trainingSet, testSet, j)*100);
+            String rappel = String.format("%.2f", classifier.recall(trainingSet, testSet, j)*100);
+            String f1_score = String.format("%.2f", classifier.f1Score(trainingSet, testSet, j)*100);
+            System.out.printf("Classe " + j + ": P = " +  precision + " R = " + rappel +" FM = " + f1_score + "\n");
         }
         System.out.println();
     }
