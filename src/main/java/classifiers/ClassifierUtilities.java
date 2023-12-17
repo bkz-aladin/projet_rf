@@ -32,11 +32,11 @@ public final class ClassifierUtilities {
             throw new IllegalArgumentException("The order of the Minkowski norm p must be greater or equal to 1.");
         }
 
-        float sum = 0.0f;
+        double sum = 0.0;
         for (int dimension = 1; dimension <= coordinates2.size(); dimension++) {
-            float coordinate1 = coordinates1.get(dimension - 1);
-            float coordinate2 = coordinates2.get(dimension - 1);
-            sum += (float) Math.pow(Math.abs(coordinate1 - coordinate2), p);
+            double coordinate1 = coordinates1.get(dimension - 1);
+            double coordinate2 = coordinates2.get(dimension - 1);
+            sum += Math.pow(Math.abs(coordinate1 - coordinate2), p);
         }
 
         return (float) Math.pow(sum, 1.0 / p);
@@ -57,6 +57,72 @@ public final class ClassifierUtilities {
         // Retourner un tableau de deux listes
         List<Sample>[] result = new List[]{trainingSet, testSet};
         return result;
+    }
+
+    public static Map<String, Double> getHyperparameters(List<Sample> trainingSet){
+        KNNClassifier knnClassifier = new KNNClassifier();
+
+        // Recherche des meilleurs hyperparamètres
+        Map<String, Double> bestHyperparameters = knnClassifier.findBestHyperparameters(trainingSet, new int[]{1, 2});
+
+        // Affichage des meilleurs hyperparamètres
+        int bestK = bestHyperparameters.get("k").intValue();
+        int bestP = bestHyperparameters.get("p").intValue();
+        String bestAccuracy = String.format("%.2f", bestHyperparameters.get("accuracy")*100);
+
+        System.out.println("Meilleurs hyperparamètres : k = " + bestK + ", p = " + bestP);
+        System.out.println("Précision moyenne correspondante : " + bestAccuracy);
+
+        return bestHyperparameters;
+    }
+
+    public static void evaluateModelOnTestSet(List<Sample> trainingSet, List<Sample> testSet, Map<String, Double> bestHyperparameters) {
+        // Utilisation des meilleurs hyperparamètres pour évaluer le modèle sur le testSet
+        int bestK = bestHyperparameters.get("k").intValue();
+        int bestP = bestHyperparameters.get("p").intValue();
+
+        KNNClassifier classifier = new KNNClassifier(bestK, bestP);
+        String realScore = String.format("%.2f", classifier.score(trainingSet, testSet)*100);
+        System.out.println("Précision du modèle sur le testSet : " + realScore);
+        int[][] matrix = classifier.confusionMatrix(trainingSet, testSet, 9);
+        printConfusionMatrix(matrix);
+
+//         Calcul et affichage de la précision et du rappel pour chaque classe
+        for (int j = 1; j <= 9; j++) {
+            String precision = String.format("%.2f", classifier.precision(trainingSet, testSet, j)*100);
+            String rappel = String.format("%.2f", classifier.recall(trainingSet, testSet, j)*100);
+            String f1_score = String.format("%.2f", classifier.f1Score(trainingSet, testSet, j)*100);
+            System.out.printf("Classe " + j + ": P = " +  precision + " R = " + rappel +" FM = " + f1_score + "\n");
+        }
+        System.out.println();
+    }
+
+    public static void printConfusionMatrix(int[][] confusionMatrix) {
+        System.out.println("MATRICE DE CONFUSION");
+        int numRows = confusionMatrix.length;
+        int numCols = confusionMatrix[0].length;
+
+        // Afficher les étiquettes de colonnes
+        System.out.print("Actual \\ Predicted  ");
+        for (int i = 1; i <= numCols; i++) {
+            System.out.printf("%-12d", i);
+        }
+        System.out.println();
+
+        // Afficher une ligne de séparation
+        for (int i = 0; i <= numCols * 13; i++) {
+            System.out.print("-");
+        }
+        System.out.println();
+
+        // Afficher les valeurs de la matrice de confusion
+        for (int i = 1; i <= numRows; i++) {
+            System.out.printf("%-17d|", i);
+            for (int j = 1; j <= numCols; j++) {
+                System.out.printf("%-12d", confusionMatrix[i - 1][j - 1]);
+            }
+            System.out.println();
+        }
     }
 
 }

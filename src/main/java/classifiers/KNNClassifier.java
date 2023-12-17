@@ -98,14 +98,14 @@ public class KNNClassifier {
         double bestAccuracy = Double.MIN_VALUE;
         List<Double> accuracyValues = new ArrayList<>();
 
-        for (int k = 1; k <= 20; k++) {
+        for (int k = 1; k <= 10; k++) {
             for (int p : pValues) {
 
                 for (int i=1 ; i <= 15; i++)
                 {
 
                     KNNClassifier knnClassifier = new KNNClassifier(k, p);
-                    double accuracy = knnClassifier.crossValidation(trainingSet, 6);
+                    double accuracy = knnClassifier.crossValidation(trainingSet, 5);
 
                     accuracyValues.add(accuracy);
                     // Mettre à jour les meilleurs hyperparamètres si la précision est améliorée
@@ -140,7 +140,16 @@ public class KNNClassifier {
         for (Sample testSample : testSet) {
             int predictedLabel = classify(trainingSet ,testSample);
             int actualLabel = testSample.getLabelNumber();
-            matrix[actualLabel][predictedLabel]++;
+
+            actualLabel -= 1;
+            predictedLabel -= 1;
+
+            // Vérifier que les étiquettes sont valides avant d'accéder à la matrice
+            if (actualLabel >= 0 && actualLabel < numClasses && predictedLabel >= 0 && predictedLabel < numClasses) {
+                matrix[actualLabel][predictedLabel]++;
+            } else {
+                System.out.println("Étiquette invalide : actual=" + (actualLabel + 1) + ", predicted=" + (predictedLabel + 1));
+            }
         }
 
         return matrix;
@@ -170,9 +179,11 @@ public class KNNClassifier {
         int truePositives = 0;
         int falseNegatives = 0;
 
+
         for (Sample testSample : testSet) {
             int predictedLabel = classify(trainingSet, testSample);
             int actualLabel = testSample.getLabelNumber();
+
 
             if (actualLabel == classToEvaluate) {
                 if (predictedLabel == classToEvaluate) {
