@@ -96,11 +96,12 @@ public class KNNClassifier {
         int bestK = -1;
         int bestP = -1;
         double bestAccuracy = Double.MIN_VALUE;
-        List<Double> accuracyValues = new ArrayList<>();
+
 
         for (int k = 1; k <= 10; k++) {
             for (int p : pValues) {
 
+                List<Double> accuracyValues = new ArrayList<>();
                 for (int i=1 ; i <= 15; i++)
                 {
 
