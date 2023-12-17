@@ -3,7 +3,7 @@ import classifiers.KMeansClassifier;
 import data.Sample;
 import input_output.DataReader;
 
-import java.util.List;
+import java.util.*;
 
 public class App {
 
@@ -43,35 +43,35 @@ public class App {
 
         /*--------------------------------------- tests ---------------------------------------*/
 
-//        System.out.println("================================== KNN CLASSIFICATION ============================================\n");
-//
-//        System.out.println("Résultats de la Méthode E34");
-//
-//        Map<String, Double> bestHyperparametersE34 = getHyperparameters(trainingSetE34);
-//
-//        // Utilisation des meilleurs hyperparamètres pour évaluer le modèle sur le testSet
-//        evaluateModelOnTestSet(trainingSetE34, testSetE34, bestHyperparametersE34);
-//
-//        System.out.println("Résultats de la Méthode F0");
-//
-//        Map<String, Double> bestHyperparametersF0 = getHyperparameters(trainingSetF0);
-//
-//        // Utilisation des meilleurs hyperparamètres pour évaluer le modèle sur le testSet
-//        evaluateModelOnTestSet(trainingSetF0, testSetF0, bestHyperparametersF0);
-//
-//        System.out.println("Résultats de la Méthode GFD");
-//
-//        Map<String, Double> bestHyperparametersGFD = getHyperparameters(trainingSetGFD);
-//
-//        // Utilisation des meilleurs hyperparamètres pour évaluer le modèle sur le testSet
-//        evaluateModelOnTestSet(trainingSetGFD, testSetGFD, bestHyperparametersGFD);
-//
-//        System.out.println("Résultats de la Méthode SA");
-//
-//        Map<String, Double> bestHyperparametersSA = getHyperparameters(trainingSetSA);
-//
-//        // Utilisation des meilleurs hyperparamètres pour évaluer le modèle sur le testSet
-//        evaluateModelOnTestSet(trainingSetSA, testSetSA, bestHyperparametersSA);
+        System.out.println("================================== KNN CLASSIFICATION ============================================\n");
+
+        System.out.println("Résultats de la Méthode E34");
+
+        Map<String, Double> bestHyperparametersE34 = getHyperparameters(trainingSetE34);
+
+        // Utilisation des meilleurs hyperparamètres pour évaluer le modèle sur le testSet
+        ClassifierUtilities.evaluateModelOnTestSet(trainingSetE34, testSetE34, bestHyperparametersE34);
+
+        System.out.println("Résultats de la Méthode F0");
+
+        Map<String, Double> bestHyperparametersF0 = getHyperparameters(trainingSetF0);
+
+        // Utilisation des meilleurs hyperparamètres pour évaluer le modèle sur le testSet
+        ClassifierUtilities.evaluateModelOnTestSet(trainingSetF0, testSetF0, bestHyperparametersF0);
+
+        System.out.println("Résultats de la Méthode GFD");
+
+        Map<String, Double> bestHyperparametersGFD = getHyperparameters(trainingSetGFD);
+
+        // Utilisation des meilleurs hyperparamètres pour évaluer le modèle sur le testSet
+        ClassifierUtilities.evaluateModelOnTestSet(trainingSetGFD, testSetGFD, bestHyperparametersGFD);
+
+        System.out.println("Résultats de la Méthode SA");
+
+        Map<String, Double> bestHyperparametersSA = getHyperparameters(trainingSetSA);
+
+        // Utilisation des meilleurs hyperparamètres pour évaluer le modèle sur le testSet
+        ClassifierUtilities.evaluateModelOnTestSet(trainingSetSA, testSetSA, bestHyperparametersSA);
 
         System.out.println("================================== K-Means Classifier ==============================================");
 
@@ -96,4 +96,6 @@ public class App {
         kMeansClassifierGFD.runKMeans();
         kMeansClassifierF0.runKMeans();
     }
+}
+
 }

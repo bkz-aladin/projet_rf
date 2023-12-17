@@ -41,7 +41,7 @@ public final class ClassifierUtilities {
 
     public static List<Sample>[] splitData(List<Sample> dataSet, float trainSetRatio) {
         // Mélanger les échantillons de manière aléatoire
-        Collections.shuffle(dataSet, new Random(123));
+        Collections.shuffle(dataSet, new Random(5));
 
         // Calculer les indices pour la division
         int totalSize = dataSet.size();
@@ -65,7 +65,7 @@ public final class ClassifierUtilities {
         // Affichage des meilleurs hyperparamètres
         int bestK = bestHyperparameters.get("k").intValue();
         int bestP = bestHyperparameters.get("p").intValue();
-        double bestAccuracy = bestHyperparameters.get("accuracy");
+        String bestAccuracy = String.format("%.2f", bestHyperparameters.get("accuracy")*100);
 
         System.out.println("Meilleurs hyperparamètres : k = " + bestK + ", p = " + bestP);
         System.out.println("Précision moyenne correspondante : " + bestAccuracy);
@@ -79,15 +79,47 @@ public final class ClassifierUtilities {
         int bestP = bestHyperparameters.get("p").intValue();
 
         KNNClassifier classifier = new KNNClassifier(bestK, bestP);
-        double realScore = classifier.score(trainingSet, testSet);
+        String realScore = String.format("%.2f", classifier.score(trainingSet, testSet)*100);
         System.out.println("Précision du modèle sur le testSet : " + realScore);
+        int[][] matrix = classifier.confusionMatrix(trainingSet, testSet, 9);
+        printConfusionMatrix(matrix);
 
-        // Calcul et affichage de la précision et du rappel pour chaque classe
+//         Calcul et affichage de la précision et du rappel pour chaque classe
         for (int j = 1; j <= 9; j++) {
-            double precision = classifier.precision(trainingSet, testSet, j);
-            double recall = classifier.recall(trainingSet, testSet, j);
-            System.out.println("Taux de reconnaissance de la classe " + j + " est de " + precision + " et le rappel : " + recall);
+            String precision = String.format("%.2f", classifier.precision(trainingSet, testSet, j)*100);
+            String rappel = String.format("%.2f", classifier.recall(trainingSet, testSet, j)*100);
+            String f1_score = String.format("%.2f", classifier.f1Score(trainingSet, testSet, j)*100);
+            System.out.printf("Classe " + j + ": P = " +  precision + " R = " + rappel +" FM = " + f1_score + "\n");
         }
         System.out.println();
     }
+
+    public static void printConfusionMatrix(int[][] confusionMatrix) {
+        System.out.println("MATRICE DE CONFUSION");
+        int numRows = confusionMatrix.length;
+        int numCols = confusionMatrix[0].length;
+
+        // Afficher les étiquettes de colonnes
+        System.out.print("Actual \\ Predicted  ");
+        for (int i = 1; i <= numCols; i++) {
+            System.out.printf("%-12d", i);
+        }
+        System.out.println();
+
+        // Afficher une ligne de séparation
+        for (int i = 0; i <= numCols * 13; i++) {
+            System.out.print("-");
+        }
+        System.out.println();
+
+        // Afficher les valeurs de la matrice de confusion
+        for (int i = 1; i <= numRows; i++) {
+            System.out.printf("%-17d|", i);
+            for (int j = 1; j <= numCols; j++) {
+                System.out.printf("%-12d", confusionMatrix[i - 1][j - 1]);
+            }
+            System.out.println();
+        }
+    }
+
 }
