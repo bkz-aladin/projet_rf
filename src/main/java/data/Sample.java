@@ -3,7 +3,7 @@ package data;
 import java.util.List;
 
 /**
- * The {@code Sample} class represents TODO:
+ * The {@code Sample} class represents an image sample of the BDshape image set.
  *
  * <p>This class includes methods to access and manipulate the features and label of a sample.
  *

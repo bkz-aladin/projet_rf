@@ -5,7 +5,12 @@ import data.Sample;
 import java.util.*;
 
 /**
+ * Utility class for working with {@code KMeansClassifier} and {@code KNNClassifier}.
+ * Generally used for common operations related to data splitting, hyperparameter tuning, confusion matrix printing,
+ * and KMeans model evaluation.
  *
+ * @author [Latif Yaya, Kentaro Sauce]
+ * @version 1.0
  */
 public final class ClassifierUtilities {
 
@@ -39,6 +44,13 @@ public final class ClassifierUtilities {
         return (float) Math.pow(sum, 1.0 / p);
     }
 
+    /**
+     * Splits a dataset into shuffled training and test sets based on the given ratio.
+     *
+     * @param dataSet        The dataset to be split.
+     * @param trainSetRatio  The ratio of the dataset to be allocated to the training set.
+     * @return An array containing two lists: the training set and the test set.
+     */
     public static List<Sample>[] splitData(List<Sample> dataSet, float trainSetRatio) {
         // Mélanger les échantillons de manière aléatoire
         Collections.shuffle(dataSet, new Random(5));
@@ -56,6 +68,12 @@ public final class ClassifierUtilities {
         return result;
     }
 
+    /**
+     * Finds the best hyperparameters for a KNN classifier using the given training set.
+     *
+     * @param trainingSet The data set of samples used for hyperparameter tuning.
+     * @return A map containing the best hyperparameters and their corresponding accuracy.
+     */
     public static Map<String, Double> getHyperparameters(List<Sample> trainingSet){
         KNNClassifier knnClassifier = new KNNClassifier();
 
@@ -73,27 +91,11 @@ public final class ClassifierUtilities {
         return bestHyperparameters;
     }
 
-    public static void evaluateModelOnTestSet(List<Sample> trainingSet, List<Sample> testSet, Map<String, Double> bestHyperparameters) {
-        // Utilisation des meilleurs hyperparamètres pour évaluer le modèle sur le testSet
-        int bestK = bestHyperparameters.get("k").intValue();
-        int bestP = bestHyperparameters.get("p").intValue();
-
-        KNNClassifier classifier = new KNNClassifier(bestK, bestP);
-        String realScore = String.format("%.2f", classifier.score(trainingSet, testSet)*100);
-        System.out.println("Précision du modèle sur le testSet : " + realScore);
-        int[][] matrix = classifier.confusionMatrix(trainingSet, testSet, 9);
-        printConfusionMatrix(matrix);
-
-//         Calcul et affichage de la précision et du rappel pour chaque classe
-        for (int j = 1; j <= 9; j++) {
-            String precision = String.format("%.2f", classifier.precision(trainingSet, testSet, j)*100);
-            String rappel = String.format("%.2f", classifier.recall(trainingSet, testSet, j)*100);
-            String f1_score = String.format("%.2f", classifier.f1Score(trainingSet, testSet, j)*100);
-            System.out.printf("Classe " + j + ": P = " +  precision + " R = " + rappel +" FM = " + f1_score + "\n");
-        }
-        System.out.println();
-    }
-
+    /**
+     * Prints the confusion matrix for either a KNN or a KMeans classification.
+     *
+     * @param confusionMatrix The confusion matrix to be printed.
+     */
     public static void printConfusionMatrix(int[][] confusionMatrix) {
         System.out.println("MATRICE DE CONFUSION");
         int numRows = confusionMatrix.length;
@@ -122,4 +124,81 @@ public final class ClassifierUtilities {
         }
     }
 
+    /**
+     * Computes the best KMeansClassifier model of given parameters based on multiple evaluations.
+     * All RNG is decided by the given seed.
+     *
+     * @param maxEvaluationIterations The maximum number of evaluations to perform before deciding the best model.
+     * @param k                       Number of clusters to form.
+     * @param dataSet                 List of samples representing the dataset.
+     * @param usingPP                 Whether to initialize centroids using the k-means++ strategy or naively.
+     * @param maxIterations           Maximum number of iterations for the KMeans algorithm.
+     * @param distanceNorm            Order of the Minkowski norm for distance calculation.
+     * @param randomSeed              Seed for all RNG in the algorithm.
+     * @return The best KMeansClassifier model based on its macro F1 score.
+     * @throws IllegalArgumentException If maxEvaluationIterations is not in the range [0, 100].
+     */
+    public static KMeansClassifier computeBestKmeansModel
+            (int maxEvaluationIterations, int k, List<Sample> dataSet, boolean usingPP,
+             int maxIterations, int distanceNorm, int randomSeed) {
+
+        // Throw exception if maxEvaluationIterations is not in the range [0, 100].
+        if (maxEvaluationIterations < 0 || maxEvaluationIterations > 100) {
+            throw new IllegalArgumentException
+                    ("Le nombre d'itérations d'évaluation du modèle Kmeans doit être compris entre 0 et 100");
+        }
+
+        // Generate a first KMeansClassifier model.
+        KMeansClassifier bestModel = new KMeansClassifier
+                (k, dataSet, usingPP, maxIterations, distanceNorm, randomSeed);
+        bestModel.runKMeans();
+
+        // Generate the remaining models and keep the best performing one using their macro F1 score.
+        for (int iteration = 0; iteration < maxEvaluationIterations - 1; iteration++) {
+            KMeansClassifier currentModel = new KMeansClassifier
+                    (k, dataSet, usingPP, maxIterations, distanceNorm, randomSeed);
+            currentModel.runKMeans();
+            if (bestModel.macroF1Score <= currentModel.macroF1Score) bestModel = currentModel;
+        }
+
+        return bestModel;
+    }
+
+    /**
+     * Computes the best KMeansClassifier model of given parameters based on multiple evaluations.
+     *
+     * @param maxEvaluationIterations The maximum number of evaluations to perform before deciding the best model.
+     * @param k                       Number of clusters to form.
+     * @param dataSet                 List of samples representing the dataset.
+     * @param usingPP                 Whether to initialize centroids using the k-means++ strategy or naively.
+     * @param maxIterations           Maximum number of iterations for the KMeans algorithm.
+     * @param distanceNorm            Order of the Minkowski norm for distance calculation.
+     * @return The best KMeansClassifier model based on its macro F1 score.
+     * @throws IllegalArgumentException If maxEvaluationIterations is not in the range [0, 100].
+     */
+    public static KMeansClassifier computeBestKmeansModel
+            (int maxEvaluationIterations, int k, List<Sample> dataSet, boolean usingPP,
+             int maxIterations, int distanceNorm) {
+
+        // Throw exception if maxEvaluationIterations is not in the range [0, 100].
+        if (maxEvaluationIterations < 0 || maxEvaluationIterations > 100) {
+            throw new IllegalArgumentException
+                    ("Le nombre d'itérations d'évaluation du modèle Kmeans doit être compris entre 0 et 100");
+        }
+
+        // Generate a first KMeansClassifier model.
+        KMeansClassifier bestModel = new KMeansClassifier
+                (k, dataSet, usingPP, maxIterations, distanceNorm);
+        bestModel.runKMeans();
+
+        // Generate the remaining models and keep the best performing one using their macro F1 score.
+        for (int iteration = 0; iteration < maxEvaluationIterations - 1; iteration++) {
+            KMeansClassifier currentModel = new KMeansClassifier
+                    (k, dataSet, usingPP, maxIterations, distanceNorm);
+            currentModel.runKMeans();
+            if (bestModel.macroF1Score <= currentModel.macroF1Score) bestModel = currentModel;
+        }
+
+        return bestModel;
+    }
 }

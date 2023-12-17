@@ -155,12 +155,12 @@ public class KNNClassifier {
         return matrix;
     }
 
-    public double precision(List<Sample> trainingSet, List<Sample> testSet, int classToEvaluate) {
+    public static double precision(KNNClassifier knnClassifier, List<Sample> trainingSet, List<Sample> testSet, int classToEvaluate) {
         int truePositives = 0;
         int falsePositives = 0;
 
         for (Sample testSample : testSet) {
-            int predictedLabel = classify(trainingSet, testSample);
+            int predictedLabel = knnClassifier.classify(trainingSet, testSample);
             int actualLabel = testSample.getLabelNumber();
 
             if (predictedLabel == classToEvaluate) {
@@ -198,10 +198,30 @@ public class KNNClassifier {
     }
 
     public double f1Score(List<Sample> trainingSet, List<Sample> testSet, int classToEvaluate) {
-        double precision = precision(trainingSet, testSet, classToEvaluate);
+        double precision = precision(this, trainingSet, testSet, classToEvaluate);
         double recall = recall(trainingSet, testSet, classToEvaluate);
 
         return 2 * (precision * recall) / (precision + recall);
     }
 
+    public static void evaluateModelOnTestSet(List<Sample> trainingSet, List<Sample> testSet, Map<String, Double> bestHyperparameters) {
+        // Utilisation des meilleurs hyperparamètres pour évaluer le modèle sur le testSet
+        int bestK = bestHyperparameters.get("k").intValue();
+        int bestP = bestHyperparameters.get("p").intValue();
+
+        KNNClassifier classifier = new KNNClassifier(bestK, bestP);
+        String realScore = String.format("%.2f", classifier.score(trainingSet, testSet)*100);
+        System.out.println("Précision du modèle sur le testSet : " + realScore);
+        int[][] matrix = classifier.confusionMatrix(trainingSet, testSet, 9);
+        ClassifierUtilities.printConfusionMatrix(matrix);
+
+//         Calcul et affichage de la précision et du rappel pour chaque classe
+        for (int j = 1; j <= 9; j++) {
+            String precision = String.format("%.2f", precision(classifier, trainingSet, testSet, j)*100);
+            String rappel = String.format("%.2f", classifier.recall(trainingSet, testSet, j)*100);
+            String f1_score = String.format("%.2f", classifier.f1Score(trainingSet, testSet, j)*100);
+            System.out.printf("Classe " + j + ": P = " +  precision + " R = " + rappel +" FM = " + f1_score + "\n");
+        }
+        System.out.println();
+    }
 }

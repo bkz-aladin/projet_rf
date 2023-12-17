@@ -1,13 +1,16 @@
 import classifiers.ClassifierUtilities;
 import classifiers.KMeansClassifier;
+import classifiers.KNNClassifier;
 import data.Sample;
 import input_output.DataReader;
 
 import java.util.*;
 
+import static classifiers.ClassifierUtilities.getHyperparameters;
+
 public class App {
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws Exception {
 
         // Initializing a DataReader for each image analysis method applied on BDshape.
         DataReader readerE34 = new DataReader("../data/E34/", ".e34");
@@ -50,28 +53,28 @@ public class App {
         Map<String, Double> bestHyperparametersE34 = getHyperparameters(trainingSetE34);
 
         // Utilisation des meilleurs hyperparamètres pour évaluer le modèle sur le testSet
-        ClassifierUtilities.evaluateModelOnTestSet(trainingSetE34, testSetE34, bestHyperparametersE34);
+        KNNClassifier.evaluateModelOnTestSet(trainingSetE34, testSetE34, bestHyperparametersE34);
 
         System.out.println("Résultats de la Méthode F0");
 
         Map<String, Double> bestHyperparametersF0 = getHyperparameters(trainingSetF0);
 
         // Utilisation des meilleurs hyperparamètres pour évaluer le modèle sur le testSet
-        ClassifierUtilities.evaluateModelOnTestSet(trainingSetF0, testSetF0, bestHyperparametersF0);
+        KNNClassifier.evaluateModelOnTestSet(trainingSetF0, testSetF0, bestHyperparametersF0);
 
         System.out.println("Résultats de la Méthode GFD");
 
         Map<String, Double> bestHyperparametersGFD = getHyperparameters(trainingSetGFD);
 
         // Utilisation des meilleurs hyperparamètres pour évaluer le modèle sur le testSet
-        ClassifierUtilities.evaluateModelOnTestSet(trainingSetGFD, testSetGFD, bestHyperparametersGFD);
+        KNNClassifier.evaluateModelOnTestSet(trainingSetGFD, testSetGFD, bestHyperparametersGFD);
 
         System.out.println("Résultats de la Méthode SA");
 
         Map<String, Double> bestHyperparametersSA = getHyperparameters(trainingSetSA);
 
         // Utilisation des meilleurs hyperparamètres pour évaluer le modèle sur le testSet
-        ClassifierUtilities.evaluateModelOnTestSet(trainingSetSA, testSetSA, bestHyperparametersSA);
+        KNNClassifier.evaluateModelOnTestSet(trainingSetSA, testSetSA, bestHyperparametersSA);
 
         System.out.println("================================== K-Means Classifier ==============================================");
 
@@ -80,22 +83,21 @@ public class App {
         boolean usingPP = true;
         int distanceNorm = 2;
         int randomSeed = 123;
+        int maxEvaluationIterations = 100;
 
         // randomSeed parameter is optional.
-        KMeansClassifier kMeansClassifierSA = new KMeansClassifier
-                (k, trainingSetSA, usingPP, maxIterations, distanceNorm);
-        KMeansClassifier kMeansClassifierE34 = new KMeansClassifier
-                (k, trainingSetE34, usingPP, maxIterations, distanceNorm);
-        KMeansClassifier kMeansClassifierGFD = new KMeansClassifier
-                (k, trainingSetGFD, usingPP, maxIterations, distanceNorm);
-        KMeansClassifier kMeansClassifierF0 = new KMeansClassifier
-                (k, trainingSetF0, usingPP, maxIterations, distanceNorm);
+        KMeansClassifier kMeansClassifierSA = ClassifierUtilities.computeBestKmeansModel
+                (maxEvaluationIterations, k, dataSetSA, usingPP, maxIterations, distanceNorm);
+        KMeansClassifier kMeansClassifierE34 = ClassifierUtilities.computeBestKmeansModel
+                (maxEvaluationIterations, k, dataSetE34, usingPP, maxIterations, distanceNorm);
+        KMeansClassifier kMeansClassifierGFD = ClassifierUtilities.computeBestKmeansModel
+                (maxEvaluationIterations, k, dataSetGFD, usingPP, maxIterations, distanceNorm);
+        KMeansClassifier kMeansClassifierF0 = ClassifierUtilities.computeBestKmeansModel
+                (maxEvaluationIterations, k, dataSetF0, usingPP, maxIterations, distanceNorm);
 
-        kMeansClassifierSA.runKMeans();
-        kMeansClassifierE34.runKMeans();
-        kMeansClassifierGFD.runKMeans();
-        kMeansClassifierF0.runKMeans();
+        kMeansClassifierSA.printEvaluations();
+        kMeansClassifierE34.printEvaluations();
+        kMeansClassifierGFD.printEvaluations();
+        kMeansClassifierF0.printEvaluations();
     }
-}
-
 }

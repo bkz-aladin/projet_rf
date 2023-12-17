@@ -7,16 +7,20 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
- * KMeansClassifier is a class that implements the K-means clustering algorithm.
+ * The {@code KMeansClassifier} class implements the K-means clustering algorithm to create clusters of similar samples.
  * It is used to partition a dataset into a specified number of clusters.
- * Although Kmeans is an unsupervised algorithm, we can still use it as a classifier with a labeled dataset.
+ *
+ * <p>Although KMeans is an unsupervised algorithm, we can still use it as a classifier with a labeled dataset.
+ *
+ * @author [Latif Yaya, Kentaro Sauce]
+ * @version 1.0
  */
 public class KMeansClassifier {
 
     /** Number of clusters (K) to form. */
     private final int k;
 
-    /** Whether centroids are initialized randomly or using k-means++. */
+    /** Whether centroids are initialized randomly or using the k-means++ strategy. */
     private final boolean usingPP;
 
     /** Maximum number of iterations for the algorithm. */
@@ -33,6 +37,24 @@ public class KMeansClassifier {
 
     /** List of Sample objects representing the dataset. */
     private final List<Sample> dataSet;
+
+    /** List of Float values representing the precision values for each class. */
+    public List<Float> precisionValues;
+
+    /** List of Float values representing the recall values for each class. */
+    public List<Float> recallValues;
+
+    /** List of Float values representing the F1 scores for each class. */
+    public List<Float> f1Scores;
+
+    /** Float value representing the macro F1 score for the classifier model. */
+    public float macroF1Score;
+
+    /** Int value representing the number of iterations for the algorithm to fully converge. */
+    public int iterations;
+
+    /** 2D array of int values representing the confusion matrix of the classification. */
+    public int[][] confusionMatrix;
 
     /**
      * Constructs a KMeansClassifier object with the specified parameters.
@@ -52,6 +74,12 @@ public class KMeansClassifier {
         this.random = new Random(randomSeed);
         this.distanceNorm = distanceNorm;
         this.clusters = new ArrayList<>();
+        this.precisionValues = new ArrayList<>();
+        this.f1Scores = new ArrayList<>();
+        this.macroF1Score = 0f;
+        this.recallValues = new ArrayList<>();
+        this.iterations = 0;
+        this.confusionMatrix = new int[9][9];
     }
 
     /**
@@ -71,15 +99,12 @@ public class KMeansClassifier {
         this.random = new Random();
         this.distanceNorm = distanceNorm;
         this.clusters = new ArrayList<>();
-    }
-
-    /**
-     * Gets the list of clusters formed by the K-means algorithm.
-     *
-     * @return List of Cluster objects representing the clusters.
-     */
-    public List<Cluster> getClusters() {
-        return clusters;
+        this.precisionValues = new ArrayList<>();
+        this.f1Scores = new ArrayList<>();
+        this.macroF1Score = 0f;
+        this.recallValues = new ArrayList<>();
+        this.iterations = 0;
+        this.confusionMatrix = new int[9][9];
     }
 
     /**
@@ -98,15 +123,6 @@ public class KMeansClassifier {
         public Centroid(List<Float> coordinates) {
             super(coordinates);
             this.coordinates = super.getFeatures();
-        }
-
-        /**
-         * Gets the centroid's list of coordinates.
-         *
-         * @return List of Float values representing the coordinates of the centroid.
-         */
-        public List<Float> getCoordinates() {
-            return this.coordinates;
         }
     }
 
@@ -137,8 +153,6 @@ public class KMeansClassifier {
          */
         private List<Float> previousCenterPoint;
 
-        private int assignedLabel;
-
         /**
          * Constructs a Cluster object with the specified centroid.
          *
@@ -167,16 +181,6 @@ public class KMeansClassifier {
          */
         public void setCentroid(Centroid centroid) {
             this.centroid = centroid;
-        }
-
-        /**
-         * Checks if the centroid of the cluster is equal to another centroid.
-         *
-         * @param centroid2 The centroid to compare.
-         * @return True if centroids are equal, false otherwise.
-         */
-        public boolean isCentroidEqualTo(Centroid centroid2) {
-            return this.centroid.equals(centroid2);
         }
 
         /**
@@ -248,11 +252,13 @@ public class KMeansClassifier {
         do {
             assignSamplesToClusters();
             updateCentroids();
-            // printClusters(iteration, clusters);
             iteration++;
         } while (iteration < maxIterations && !areAllClustersConverged());
 
-        printClusterLabels(--iteration, clusters);
+        this.iterations = --iteration;
+
+        computeConfusionMatrix();
+        computeEvaluationScores();
     }
 
     /**
@@ -440,6 +446,11 @@ public class KMeansClassifier {
         System.out.println();
     }
 
+    /**
+     * Gets the method name used to generate the current dataset based on the number of features in the dataset.
+     *
+     * @return A string representing the method name.
+     */
     private String getMethodName() {
         final int amountOfFeatures = dataSet.getFirst().getFeatures().size();
         if (amountOfFeatures == 16) return "E34";
@@ -448,6 +459,9 @@ public class KMeansClassifier {
         return "F0";
     }
 
+    /**
+     * Assigns cluster labels based on the most frequent label in each cluster.
+     */
     public void assignClusterLabels() {
 //        List<Map<Integer, Long>> labelOccurrencesInEachCluster = new ArrayList<>();
 //        for (Cluster cluster : clusters) {
@@ -459,16 +473,125 @@ public class KMeansClassifier {
 //                if (!labelOccurences.containsKey(i)) labelOccurences.put(i, 0L);
 //            }
 //        }
-//        // TODO : find better way to assign labels with proportions.
+//        // TODO : find a better way to assign labels by comparing proportion of label in each cluster.
 
         for (Cluster cluster : clusters) {
             List<Integer> labels = cluster.samples.stream().map(Sample::getLabelNumber).toList();
             Map<Integer, Long> labelOccurences = labels.stream()
                     .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
-            cluster.getCentroid().setLabel
-                    (Collections.max(labelOccurences.entrySet(), Map.Entry.comparingByValue()).getKey());
+
+            if (!cluster.samples.isEmpty()) {
+                cluster.getCentroid().setLabel
+                        (Collections.max(labelOccurences.entrySet(), Map.Entry.comparingByValue()).getKey());
+            } else {
+                cluster.getCentroid().setLabel(0);
+            }
         }
     }
 
-    // public void computeConfusionMatrix
+    /**
+     * Computes the confusion matrix for the classification results after assigning labels to the clusters.
+     */
+    private void computeConfusionMatrix() {
+        int numClasses = 9;
+        int[][] matrix = new int[numClasses][numClasses];
+
+        assignClusterLabels();
+
+        for (Sample sample : dataSet) {
+            int predictedLabel = 0;
+            for (Cluster cluster : clusters) {
+                if (cluster.getSamples().contains(sample)) {
+                    predictedLabel = cluster.getCentroid().getLabelNumber() - 1;
+                }
+            }
+
+            int actualLabel = sample.getLabelNumber() - 1;
+
+            // Vérifier que les étiquettes sont valides avant d'accéder à la matrice
+            if (actualLabel >= 0 && actualLabel < numClasses && predictedLabel >= 0 && predictedLabel < numClasses) {
+                matrix[actualLabel][predictedLabel]++;
+            } else {
+                throw new RuntimeException
+                        ("Étiquette invalide : actual=" + (actualLabel + 1) + ", predicted=" + (predictedLabel + 1));
+            }
+        }
+
+        this.confusionMatrix = matrix;
+    }
+
+    /**
+     * Computes precision, recall, and F1 scores for each class and calculates the macro F1 score of the model.
+     */
+    public void computeEvaluationScores() {
+        for (int i = 0; i < 9; i++) {
+            float truePositives = confusionMatrix[i][i];
+            float falsePositives = 0;
+            float falseNegatives = 0;
+
+            for (int j = 0; j < 9; j++) {
+                if (i != j) {
+                    falsePositives += confusionMatrix[i][j];
+                    falseNegatives += confusionMatrix[j][i];
+                }
+            }
+
+            // Calculate precision value for the current class
+            float precisionValue;
+            if (truePositives + falsePositives == 0.0f) {
+                precisionValue = 0.0f;
+            } else {
+                precisionValue = truePositives / (truePositives + falsePositives);
+            }
+
+            // Calculate recall value for the current class
+            float recallValue;
+            if (truePositives + falseNegatives == 0.0f) {
+                recallValue = 0.0f;
+            } else {
+                recallValue = truePositives / (truePositives + falseNegatives);
+            }
+
+            precisionValues.add(precisionValue);
+            recallValues.add(recallValue);
+
+            // Calculate F1 score for the current class
+            float f1Score;
+            if (precisionValue + recallValue == 0.0f) {
+                f1Score = 0.0f;
+            } else {
+                f1Score = 2 * (precisionValue * recallValue) / (precisionValue + recallValue);
+            }
+
+            f1Scores.add(f1Score);
+        }
+
+        // Calculate macro F1 score for the model
+        macroF1Score = (float) f1Scores.stream().mapToDouble(a -> a).average().orElse(0);
+    }
+
+    /**
+     * Prints the evaluation metrics for each class and the macro F1 score in % format,
+     * before ultimately printing the confusion matrix.
+     * 'P' corresponds to the precision value, 'R' corresponds to the recall value and 'F' corresponds to the F1 score.
+     */
+    public void printEvaluations() {
+        System.out.println("\n- " + getMethodName());
+
+        // Print the precision, recall and f1 score values in % for every class.
+        for (int classIndex = 0; classIndex < 9; classIndex++) {
+            String formattedLine = String.format("Classe %d: \tP = %.2f%%\tR = %.2f%%\tF = %.2f%%",
+                    classIndex + 1, precisionValues.get(classIndex) * 100,
+                    recallValues.get(classIndex) * 100, f1Scores.get(classIndex) * 100);
+            System.out.println(formattedLine);
+        }
+
+        // Print the macro F1 score of the model.
+        String macroF1Score = String.format("%.2f%%", this.macroF1Score * 100);
+        System.out.println("Macro F1 Score: " + macroF1Score);
+        System.out.println();
+
+        // Print the confusion matrix.
+        ClassifierUtilities.printConfusionMatrix(confusionMatrix);
+    }
 }
