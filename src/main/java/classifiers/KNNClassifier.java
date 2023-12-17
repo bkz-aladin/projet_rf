@@ -39,19 +39,46 @@ public class KNNClassifier {
         return Collections.max(classCounts.entrySet(), Map.Entry.comparingByValue()).getKey();
     }
 
+    /**
+     * Calcule la F1-score du classificateur sur un ensemble de test.
+     *
+     * @param trainingSet L'ensemble de données d'entraînement utilisé pour le classificateur.
+     * @param testSet     L'ensemble de données de test pour évaluer la F1-score du classificateur.
+     * @return La F1-score du classificateur sur l'ensemble de test.
+     */
     public double score(List<Sample> trainingSet, List<Sample> testSet) {
-        int correctPredictions = 0;
+        if (trainingSet.isEmpty() || testSet.isEmpty()) {
+            // Gérer le cas où l'un des ensembles est vide
+            return -1.0;
+        }
+
+        int truePositives = 0;
+        int falsePositives = 0;
+        int falseNegatives = 0;
 
         for (Sample testSample : testSet) {
-            int predictedLabel = classify(trainingSet ,testSample);
-            if (predictedLabel == testSample.getLabelNumber()) {
-                correctPredictions++;
+            int predictedLabel = classify(trainingSet, testSample);
+            int trueLabel = testSample.getLabelNumber();
+
+            if (predictedLabel == trueLabel) {
+                truePositives++;
+            } else {
+                // Si la prédiction est incorrecte, déterminer s'il s'agit d'un faux positif ou d'un faux négatif
+                if (predictedLabel != trueLabel && trueLabel >= 0) {
+                    falseNegatives++;
+                } else {
+                    falsePositives++;
+                }
             }
         }
 
-        // Calculer le taux de précision
-        return (double) correctPredictions / testSet.size();
+        double precision = (double) truePositives / (truePositives + falsePositives);
+        double recall = (double) truePositives / (truePositives + falseNegatives);
+
+        // Calculer la F1-score
+        return 2 * (precision * recall) / (precision + recall);
     }
+
 
     public double crossValidation(List<Sample> dataSet, int folds) {
         // Mélanger l'ensemble de données
@@ -102,7 +129,7 @@ public class KNNClassifier {
             for (int p : pValues) {
 
                 List<Double> accuracyValues = new ArrayList<>();
-                for (int i=1 ; i <= 15; i++)
+                for (int i=1 ; i <= 10; i++)
                 {
 
                     KNNClassifier knnClassifier = new KNNClassifier(k, p);
