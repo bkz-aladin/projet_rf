@@ -1,55 +1,41 @@
-/**
- * KMeans is a class that implements the K-means clustering algorithm.
- * It is used to partition a dataset into a specified number of clusters.
- */
 package classifiers;
 
 import data.Sample;
 
 import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
- * The KMeans class represents the K-means clustering algorithm.
+ * KMeansClassifier is a class that implements the K-means clustering algorithm.
+ * It is used to partition a dataset into a specified number of clusters.
+ * Although Kmeans is an unsupervised algorithm, we can still use it as a classifier with a labeled dataset.
  */
-public class KMeans {
+public class KMeansClassifier {
 
-    /**
-     * Number of clusters (K) to form.
-     */
+    /** Number of clusters (K) to form. */
     private final int k;
 
-    /**
-     * Whether centroids are initialized randomly or using k-means++.
-     */
+    /** Whether centroids are initialized randomly or using k-means++. */
     private final boolean usingPP;
 
-    /**
-     * Maximum number of iterations for the algorithm.
-     */
+    /** Maximum number of iterations for the algorithm. */
     private final int maxIterations;
 
-    /**
-     * Order of the Minkowski norm (p) for distance calculation.
-     */
+    /** Order of the Minkowski norm (p) for distance calculation. */
     private final int distanceNorm;
 
-    /**
-     * The random object to generate random values throughout the algorithm.
-     */
+    /** The random object to generate random values throughout the algorithm. */
     private final Random random;
 
-    /**
-     * List of Cluster objects representing the clusters formed by the algorithm.
-     */
+    /** List of Cluster objects representing the clusters formed by the algorithm. */
     private List<Cluster> clusters;
 
-    /**
-     * List of Sample objects representing the dataset.
-     */
+    /** List of Sample objects representing the dataset. */
     private final List<Sample> dataSet;
 
     /**
-     * Constructs a KMeans object with the specified parameters.
+     * Constructs a KMeansClassifier object with the specified parameters.
      *
      * @param k              Number of clusters to form.
      * @param dataSet        List of samples representing the dataset.
@@ -58,7 +44,7 @@ public class KMeans {
      * @param distanceNorm   Order of the Minkowski norm for distance calculation.
      * @param randomSeed     Seed for all RNG in the algorithm.
      */
-    public KMeans(int k, List<Sample> dataSet, boolean usingPP, int maxIterations, int distanceNorm, int randomSeed) {
+    public KMeansClassifier(int k, List<Sample> dataSet, boolean usingPP, int maxIterations, int distanceNorm, int randomSeed) {
         this.k = k;
         this.dataSet = dataSet;
         this.usingPP = usingPP;
@@ -69,7 +55,7 @@ public class KMeans {
     }
 
     /**
-     * Constructs a KMeans object with the specified parameters.
+     * Constructs a KMeansClassifier object with the specified parameters.
      *
      * @param k              Number of clusters to form.
      * @param dataSet        List of samples representing the dataset.
@@ -77,7 +63,7 @@ public class KMeans {
      * @param maxIterations  Maximum number of iterations for the algorithm.
      * @param distanceNorm   Order of the Minkowski norm for distance calculation.
      */
-    public KMeans(int k, List<Sample> dataSet, boolean usingPP, int maxIterations, int distanceNorm) {
+    public KMeansClassifier(int k, List<Sample> dataSet, boolean usingPP, int maxIterations, int distanceNorm) {
         this.k = k;
         this.dataSet = dataSet;
         this.usingPP = usingPP;
@@ -99,14 +85,28 @@ public class KMeans {
     /**
      * The Centroid class represents the centroid of a cluster.
      */
-    public record Centroid(List<Float> coordinates) {
+    public static class Centroid extends Sample {
+
+        /** Represents the coordinates of the centroid. */
+        private final List<Float> coordinates;
+
         /**
          * Constructs a Centroid object with the specified coordinates.
          *
          * @param coordinates List of coordinates for the centroid.
          */
         public Centroid(List<Float> coordinates) {
-            this.coordinates = new ArrayList<>(coordinates);
+            super(coordinates);
+            this.coordinates = super.getFeatures();
+        }
+
+        /**
+         * Gets the centroid's list of coordinates.
+         *
+         * @return List of Float values representing the coordinates of the centroid.
+         */
+        public List<Float> getCoordinates() {
+            return this.coordinates;
         }
     }
 
@@ -136,6 +136,8 @@ public class KMeans {
          * Represents the {@code centerPoint} of the last state of the cluster.
          */
         private List<Float> previousCenterPoint;
+
+        private int assignedLabel;
 
         /**
          * Constructs a Cluster object with the specified centroid.
@@ -231,7 +233,7 @@ public class KMeans {
          *
          * @return True if attribute means have converged, false otherwise.
          */
-        public boolean hasNotChanged() {
+        private boolean hasNotChanged() {
             return centerPoint.equals(previousCenterPoint);
         }
     }
@@ -246,9 +248,11 @@ public class KMeans {
         do {
             assignSamplesToClusters();
             updateCentroids();
-            printClusters(iteration, clusters);
+            // printClusters(iteration, clusters);
             iteration++;
         } while (iteration < maxIterations && !areAllClustersConverged());
+
+        printClusterLabels(--iteration, clusters);
     }
 
     /**
@@ -393,18 +397,19 @@ public class KMeans {
     }
 
     /**
-     * Prints information about the clusters.
+     * Prints information about the clusters including the centroid coordinates
+     * and the labels of the samples corresponding to them.
      *
      * @param iteration The current iteration number.
      * @param clusters  List of clusters to print.
      */
-    private void printClusters(int iteration, List<Cluster> clusters) {
+    public void printClusters(int iteration, List<Cluster> clusters) {
         System.out.println("Iteration " + iteration + ":");
         for (Cluster cluster : clusters) {
             Centroid centroid = cluster.getCentroid();
             List<Sample> samplesInCluster = cluster.getSamples();
 
-            System.out.print("Cluster - Centroid: " + centroid.coordinates() + " Samples: ");
+            System.out.print("Cluster - Centroid: " + centroid.coordinates + " Samples: ");
             for (Sample sample : samplesInCluster) {
                 System.out.print(sample.getLabelNumber() + " ");
             }
@@ -412,4 +417,58 @@ public class KMeans {
         }
         System.out.println();
     }
+
+    /**
+     * Prints the label of each sample corresponding to the clusters.
+     *
+     * @param iteration The current iteration number.
+     * @param clusters  List of clusters to print.
+     */
+    public void printClusterLabels(int iteration, List<Cluster> clusters) {
+        System.out.println(getMethodName() + " - Iteration " + iteration + ":");
+        int clusterNumber = 1;
+        for (Cluster cluster : clusters) {
+            List<Sample> samplesInCluster = cluster.getSamples();
+
+            System.out.print("Cluster " + clusterNumber + " - Samples: ");
+            for (Sample sample : samplesInCluster) {
+                System.out.print(sample.getLabelNumber() + " ");
+            }
+            clusterNumber++;
+            System.out.println();
+        }
+        System.out.println();
+    }
+
+    private String getMethodName() {
+        final int amountOfFeatures = dataSet.getFirst().getFeatures().size();
+        if (amountOfFeatures == 16) return "E34";
+        if (amountOfFeatures == 100) return "GFD";
+        if (amountOfFeatures == 90) return "SA";
+        return "F0";
+    }
+
+    public void assignClusterLabels() {
+//        List<Map<Integer, Long>> labelOccurrencesInEachCluster = new ArrayList<>();
+//        for (Cluster cluster : clusters) {
+//            List<Integer> labels = cluster.samples.stream().map(Sample::getLabelNumber).toList();
+//            Map<Integer, Long> labelOccurences = labels.stream()
+//                    .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
+//            labelOccurrencesInEachCluster.add(labelOccurences);
+//            for (int i = 1; i < 10; i++) {
+//                if (!labelOccurences.containsKey(i)) labelOccurences.put(i, 0L);
+//            }
+//        }
+//        // TODO : find better way to assign labels with proportions.
+
+        for (Cluster cluster : clusters) {
+            List<Integer> labels = cluster.samples.stream().map(Sample::getLabelNumber).toList();
+            Map<Integer, Long> labelOccurences = labels.stream()
+                    .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
+            cluster.getCentroid().setLabel
+                    (Collections.max(labelOccurences.entrySet(), Map.Entry.comparingByValue()).getKey());
+        }
+    }
+
+    // public void computeConfusionMatrix
 }

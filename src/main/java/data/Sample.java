@@ -15,31 +15,11 @@ public class Sample {
     /** The list of floating-point values representing the features of the sample. */
     protected List<Float> features;
 
-    /**
-     * Enum representing possible label names associated with a sample.
-     * Labels include UNLABELED, POISSON, LAPIN, SILHOUETTE, AVION, MAIN, OUTIL, BIDULE, ANIMAL, and RAIE.
-     */
-    private enum LabelName {
-        UNLABELED,
-        POISSON,
-        LAPIN,
-        SILHOUETTE,
-        AVION,
-        MAIN,
-        OUTIL,
-        BIDULE,
-        ANIMAL,
-        RAIE
-    }
-
-    /** The label associated with the sample, represented by a LabelName enum. */
-    private LabelName label;
+    /** The label associated with the sample */
+    private int label;
 
     /**
      * Constructs a Sample with the specified features and label number.
-     * The label number corresponds to the index of the desired label inside the LabelName constant group:
-     * 1 -> POISSON, 2 -> LAPIN, 3 -> SILHOUETTE, 4 -> AVION, 5 -> MAIN, 6 -> OUTIL,
-     * 7 -> BIDULE, 8 -> ANIMAL, 9 -> RAIE, 0 -> UNLABELED.
      *
      * @param features    A list of Float values representing the features of the sample.
      * @param labelNumber An integer indicating the label number of the desired label associated with the sample.
@@ -95,7 +75,7 @@ public class Sample {
      * @return An integer representing the index of the label.
      */
     public int getLabelNumber() {
-        return this.label.ordinal();
+        return this.label;
     }
 
     /**
@@ -107,7 +87,7 @@ public class Sample {
      * @param labelNumber An integer representing the index of the label.
      */
     public void setLabel(int labelNumber) {
-        this.label = LabelName.values()[labelNumber];
+        this.label = labelNumber;
     }
 
     /**

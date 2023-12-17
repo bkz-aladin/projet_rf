@@ -2,9 +2,6 @@ package classifiers;
 
 import data.Sample;
 
-import java.io.BufferedWriter;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.util.*;
 
 /**
@@ -59,4 +56,38 @@ public final class ClassifierUtilities {
         return result;
     }
 
+    public static Map<String, Double> getHyperparameters(List<Sample> trainingSet){
+        KNNClassifier knnClassifier = new KNNClassifier();
+
+        // Recherche des meilleurs hyperparamètres
+        Map<String, Double> bestHyperparameters = knnClassifier.findBestHyperparameters(trainingSet, new int[]{1, 2});
+
+        // Affichage des meilleurs hyperparamètres
+        int bestK = bestHyperparameters.get("k").intValue();
+        int bestP = bestHyperparameters.get("p").intValue();
+        double bestAccuracy = bestHyperparameters.get("accuracy");
+
+        System.out.println("Meilleurs hyperparamètres : k = " + bestK + ", p = " + bestP);
+        System.out.println("Précision moyenne correspondante : " + bestAccuracy);
+
+        return bestHyperparameters;
+    }
+
+    public static void evaluateModelOnTestSet(List<Sample> trainingSet, List<Sample> testSet, Map<String, Double> bestHyperparameters) {
+        // Utilisation des meilleurs hyperparamètres pour évaluer le modèle sur le testSet
+        int bestK = bestHyperparameters.get("k").intValue();
+        int bestP = bestHyperparameters.get("p").intValue();
+
+        KNNClassifier classifier = new KNNClassifier(bestK, bestP);
+        double realScore = classifier.score(trainingSet, testSet);
+        System.out.println("Précision du modèle sur le testSet : " + realScore);
+
+        // Calcul et affichage de la précision et du rappel pour chaque classe
+        for (int j = 1; j <= 9; j++) {
+            double precision = classifier.precision(trainingSet, testSet, j);
+            double recall = classifier.recall(trainingSet, testSet, j);
+            System.out.println("Taux de reconnaissance de la classe " + j + " est de " + precision + " et le rappel : " + recall);
+        }
+        System.out.println();
+    }
 }

@@ -1,13 +1,9 @@
 import classifiers.ClassifierUtilities;
-import classifiers.KMeans;
-import classifiers.KNNClassifier;
+import classifiers.KMeansClassifier;
 import data.Sample;
 import input_output.DataReader;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class App {
 
@@ -25,121 +21,79 @@ public class App {
         List<Sample> dataSetGFD = readerGFD.getDataSet();
         List<Sample> dataSetSA = readerSA.getDataSet();
 
+        // Splitting the datasets into their corresponding training set and test set using a split ratio.
+        float splitRatio = 0.8f;
+        List<Sample>[] splitDataSetSA = ClassifierUtilities.splitData(dataSetSA, splitRatio);
+        List<Sample>[] splitDataSetE34 = ClassifierUtilities.splitData(dataSetE34, splitRatio);
+        List<Sample>[] splitDataSetGFD = ClassifierUtilities.splitData(dataSetGFD, splitRatio);
+        List<Sample>[] splitDataSetF0 = ClassifierUtilities.splitData(dataSetF0, splitRatio);
+
+        // Recovering the training sets.
+        List<Sample> trainingSetSA = splitDataSetSA[0];
+        List<Sample> trainingSetE34 = splitDataSetE34[0];
+        List<Sample> trainingSetGFD = splitDataSetGFD[0];
+        List<Sample> trainingSetF0 = splitDataSetF0[0];
+
+        // Recovering the test sets.
+        List<Sample> testSetSA = splitDataSetSA[1];
+        List<Sample> testSetE34 = splitDataSetE34[1];
+        List<Sample> testSetGFD = splitDataSetGFD[1];
+        List<Sample> testSetF0 = splitDataSetF0[1];
+
 
         /*--------------------------------------- tests ---------------------------------------*/
 
-        System.out.println("================================== KNN CLASSIFICATION ============================================\n");
-
-        System.out.println("Résultats de la Méthode E34");
-
-        List<Sample>[] splitedDataSetE34 = ClassifierUtilities.splitData(dataSetE34, 0.8f);
-        List<Sample> trainingSetE34 = splitedDataSetE34[0];
-        List<Sample> testSetE34 = splitedDataSetE34[1];
-
-        Map<String, Double> bestHyperparametersE34 = getHyperparameters(trainingSetE34);
-
-        // Utilisation des meilleurs hyperparamètres pour évaluer le modèle sur le testSet
-        evaluateModelOnTestSet(trainingSetE34, testSetE34, bestHyperparametersE34);
-
-        System.out.println("Résultats de la Méthode F0");
-
-        List<Sample>[] splitedDataSetF0 = ClassifierUtilities.splitData(dataSetF0, 0.8f);
-        List<Sample> trainingSetF0 = splitedDataSetF0[0];
-        List<Sample> testSetF0 = splitedDataSetF0[1];
-
-        Map<String, Double> bestHyperparametersF0 = getHyperparameters(trainingSetF0);
-
-        // Utilisation des meilleurs hyperparamètres pour évaluer le modèle sur le testSet
-        evaluateModelOnTestSet(trainingSetF0, testSetF0, bestHyperparametersF0);
-
-        System.out.println("Résultats de la Méthode GFD");
-
-        List<Sample>[] splitedDataSetGFD = ClassifierUtilities.splitData(dataSetGFD, 0.8f);
-        List<Sample> trainingSetGFD = splitedDataSetGFD[0];
-        List<Sample> testSetGFD = splitedDataSetGFD[1];
-
-        Map<String, Double> bestHyperparametersGFD = getHyperparameters(trainingSetGFD);
-
-        // Utilisation des meilleurs hyperparamètres pour évaluer le modèle sur le testSet
-        evaluateModelOnTestSet(trainingSetGFD, testSetGFD, bestHyperparametersGFD);
-
-        System.out.println("Résultats de la Méthode SA");
-
-        List<Sample>[] splitedDataSetSA = ClassifierUtilities.splitData(dataSetSA, 0.8f);
-        List<Sample> trainingSetSA = splitedDataSetSA[0];
-        List<Sample> testSetSA = splitedDataSetSA[1];
-
-        Map<String, Double> bestHyperparametersSA = getHyperparameters(trainingSetSA);
-
-        // Utilisation des meilleurs hyperparamètres pour évaluer le modèle sur le testSet
-        evaluateModelOnTestSet(trainingSetSA, testSetSA, bestHyperparametersSA);
-
+//        System.out.println("================================== KNN CLASSIFICATION ============================================\n");
+//
+//        System.out.println("Résultats de la Méthode E34");
+//
+//        Map<String, Double> bestHyperparametersE34 = getHyperparameters(trainingSetE34);
+//
+//        // Utilisation des meilleurs hyperparamètres pour évaluer le modèle sur le testSet
+//        evaluateModelOnTestSet(trainingSetE34, testSetE34, bestHyperparametersE34);
+//
+//        System.out.println("Résultats de la Méthode F0");
+//
+//        Map<String, Double> bestHyperparametersF0 = getHyperparameters(trainingSetF0);
+//
+//        // Utilisation des meilleurs hyperparamètres pour évaluer le modèle sur le testSet
+//        evaluateModelOnTestSet(trainingSetF0, testSetF0, bestHyperparametersF0);
+//
+//        System.out.println("Résultats de la Méthode GFD");
+//
+//        Map<String, Double> bestHyperparametersGFD = getHyperparameters(trainingSetGFD);
+//
+//        // Utilisation des meilleurs hyperparamètres pour évaluer le modèle sur le testSet
+//        evaluateModelOnTestSet(trainingSetGFD, testSetGFD, bestHyperparametersGFD);
+//
+//        System.out.println("Résultats de la Méthode SA");
+//
+//        Map<String, Double> bestHyperparametersSA = getHyperparameters(trainingSetSA);
+//
+//        // Utilisation des meilleurs hyperparamètres pour évaluer le modèle sur le testSet
+//        evaluateModelOnTestSet(trainingSetSA, testSetSA, bestHyperparametersSA);
 
         System.out.println("================================== K-Means Classifier ==============================================");
-        Map<KMeans.Centroid, List<Sample>> clusters = KMeans.getClustersOfSamples
-                (trainingSetE34, 9, 2, 500);
-        for (Map.Entry<KMeans.Centroid, List<Sample>> entry : clusters.entrySet()) {
-            for (Sample sample : entry.getValue()) {
-                System.out.print(sample.getLabelNumber());
-            }
-            System.out.println();
-        }
-
 
         int k = 9;
         int maxIterations = 100;
         boolean usingPP = true;
         int distanceNorm = 2;
-        int randomSeed = 123; // optional
+        int randomSeed = 123;
 
-        KMeans kMeans = new KMeans(k, dataSetGFD, usingPP, maxIterations, distanceNorm, randomSeed);
-        kMeans.runKMeans();
+        // randomSeed parameter is optional.
+        KMeansClassifier kMeansClassifierSA = new KMeansClassifier
+                (k, trainingSetSA, usingPP, maxIterations, distanceNorm);
+        KMeansClassifier kMeansClassifierE34 = new KMeansClassifier
+                (k, trainingSetE34, usingPP, maxIterations, distanceNorm);
+        KMeansClassifier kMeansClassifierGFD = new KMeansClassifier
+                (k, trainingSetGFD, usingPP, maxIterations, distanceNorm);
+        KMeansClassifier kMeansClassifierF0 = new KMeansClassifier
+                (k, trainingSetF0, usingPP, maxIterations, distanceNorm);
 
-        List<KMeans.Cluster> clusters = kMeans.getClusters();
-
-//        for (int i = 0; i < clusters.size(); i++) {
-//            System.out.println("Cluster " + (i + 1) + ":");
-//            for (Sample sample : clusters.get(i).getSamples()) {
-//                System.out.println(sample);
-//            }
-//            System.out.println();
-//        }
-
-
-    }
-
-    private static Map<String, Double> getHyperparameters(List<Sample> trainingSet){
-        KNNClassifier knnClassifier = new KNNClassifier();
-
-        // Recherche des meilleurs hyperparamètres
-        Map<String, Double> bestHyperparameters = knnClassifier.findBestHyperparameters(trainingSet, new int[]{1, 2});
-
-        // Affichage des meilleurs hyperparamètres
-        int bestK = bestHyperparameters.get("k").intValue();
-        int bestP = bestHyperparameters.get("p").intValue();
-        double bestAccuracy = bestHyperparameters.get("accuracy");
-
-        System.out.println("Meilleurs hyperparamètres : k = " + bestK + ", p = " + bestP);
-        System.out.println("Précision moyenne correspondante : " + bestAccuracy);
-
-        return bestHyperparameters;
-    }
-
-    private static void evaluateModelOnTestSet(List<Sample> trainingSet, List<Sample> testSet, Map<String, Double> bestHyperparameters) {
-        // Utilisation des meilleurs hyperparamètres pour évaluer le modèle sur le testSet
-        int bestK = bestHyperparameters.get("k").intValue();
-        int bestP = bestHyperparameters.get("p").intValue();
-
-        KNNClassifier classifier = new KNNClassifier(bestK, bestP);
-        double realScore = classifier.score(trainingSet, testSet);
-        System.out.println("Précision du modèle sur le testSet : " + realScore);
-
-        // Calcul et affichage de la précision et du rappel pour chaque classe
-        for (int j = 1; j <= 9; j++) {
-            double precision = classifier.precision(trainingSet, testSet, j);
-            double recall = classifier.recall(trainingSet, testSet, j);
-            System.out.println("Taux de reconnaissance de la classe " + j + " est de " + precision + " et le rappel : " + recall);
-        }
-        System.out.println();
+        kMeansClassifierSA.runKMeans();
+        kMeansClassifierE34.runKMeans();
+        kMeansClassifierGFD.runKMeans();
+        kMeansClassifierF0.runKMeans();
     }
 }
