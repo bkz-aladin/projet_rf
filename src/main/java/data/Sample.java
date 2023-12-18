@@ -30,7 +30,7 @@ public class Sample {
     }
 
     /**
-     * Constructs a Sample with the specified features while associating it the default label: UNLABELED.
+     * Constructs a Sample with the specified features while associating it the default label: 0.
      *
      * @param features A list of Float values representing the features of the sample.
      */
@@ -67,24 +67,18 @@ public class Sample {
     }
 
     /**
-     * Retrieves the label number of the label associated with this sample.
-     * The label number corresponds to the index of the desired label inside the LabelName constant group:
-     * 1 -> POISSON, 2 -> LAPIN, 3 -> SILHOUETTE, 4 -> AVION, 5 -> MAIN, 6 -> OUTIL,
-     * 7 -> BIDULE, 8 -> ANIMAL, 9 -> RAIE, 0 -> UNLABELED.
+     * Retrieves the label associated with this sample.
      *
-     * @return An integer representing the index of the label.
+     * @return An integer representing the label.
      */
-    public int getLabelNumber() {
+    public int getLabel() {
         return this.label;
     }
 
     /**
-     * Sets the label associated with this sample from the label number.
-     * The label number corresponds to the index of the desired label inside the LabelName constant group:
-     * 1 -> POISSON, 2 -> LAPIN, 3 -> SILHOUETTE, 4 -> AVION, 5 -> MAIN, 6 -> OUTIL,
-     * 7 -> BIDULE, 8 -> ANIMAL, 9 -> RAIE, 0 -> UNLABELED.
+     * Sets the label associated with this sample.
      *
-     * @param labelNumber An integer representing the index of the label.
+     * @param labelNumber An integer representing the label.
      */
     public void setLabel(int labelNumber) {
         this.label = labelNumber;

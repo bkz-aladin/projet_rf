@@ -417,7 +417,7 @@ public class KMeansClassifier {
 
             System.out.print("Cluster - Centroid: " + centroid.coordinates + " Samples: ");
             for (Sample sample : samplesInCluster) {
-                System.out.print(sample.getLabelNumber() + " ");
+                System.out.print(sample.getLabel() + " ");
             }
             System.out.println();
         }
@@ -438,7 +438,7 @@ public class KMeansClassifier {
 
             System.out.print("Cluster " + clusterNumber + " - Samples: ");
             for (Sample sample : samplesInCluster) {
-                System.out.print(sample.getLabelNumber() + " ");
+                System.out.print(sample.getLabel() + " ");
             }
             clusterNumber++;
             System.out.println();
@@ -476,7 +476,7 @@ public class KMeansClassifier {
 //        // TODO : find a better way to assign labels by comparing proportion of label in each cluster.
 
         for (Cluster cluster : clusters) {
-            List<Integer> labels = cluster.samples.stream().map(Sample::getLabelNumber).toList();
+            List<Integer> labels = cluster.samples.stream().map(Sample::getLabel).toList();
             Map<Integer, Long> labelOccurences = labels.stream()
                     .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
 
@@ -502,11 +502,11 @@ public class KMeansClassifier {
             int predictedLabel = 0;
             for (Cluster cluster : clusters) {
                 if (cluster.getSamples().contains(sample)) {
-                    predictedLabel = cluster.getCentroid().getLabelNumber() - 1;
+                    predictedLabel = cluster.getCentroid().getLabel() - 1;
                 }
             }
 
-            int actualLabel = sample.getLabelNumber() - 1;
+            int actualLabel = sample.getLabel() - 1;
 
             // Vérifier que les étiquettes sont valides avant d'accéder à la matrice
             if (actualLabel >= 0 && actualLabel < numClasses && predictedLabel >= 0 && predictedLabel < numClasses) {

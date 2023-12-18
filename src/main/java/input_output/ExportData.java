@@ -38,7 +38,7 @@ public class ExportData {
 
             // Écrire les labels des échantillons dans le fichier CSV
             for (Sample sample : samples) {
-                int label = sample.getLabelNumber();
+                int label = sample.getLabel();
                 writer.write(String.valueOf(label));
                 writer.newLine();
             }

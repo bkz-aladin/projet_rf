@@ -31,7 +31,7 @@ public class KNNClassifier {
         // Compter les occurrences de chaque classe parmi les k plus proches voisins
         Map<Integer, Integer> classCounts = new HashMap<>();
         for (int i = 0; i < this.k; i++) {
-            int label = trainingSet.get(i).getLabelNumber();
+            int label = trainingSet.get(i).getLabel();
             classCounts.put(label, classCounts.getOrDefault(label, 0) + 1);
         }
 
@@ -44,7 +44,7 @@ public class KNNClassifier {
 
         for (Sample testSample : testSet) {
             int predictedLabel = classify(trainingSet ,testSample);
-            if (predictedLabel == testSample.getLabelNumber()) {
+            if (predictedLabel == testSample.getLabel()) {
                 correctPredictions++;
             }
         }
@@ -140,7 +140,7 @@ public class KNNClassifier {
 
         for (Sample testSample : testSet) {
             int predictedLabel = classify(trainingSet ,testSample);
-            int actualLabel = testSample.getLabelNumber();
+            int actualLabel = testSample.getLabel();
 
             actualLabel -= 1;
             predictedLabel -= 1;
@@ -162,7 +162,7 @@ public class KNNClassifier {
 
         for (Sample testSample : testSet) {
             int predictedLabel = knnClassifier.classify(trainingSet, testSample);
-            int actualLabel = testSample.getLabelNumber();
+            int actualLabel = testSample.getLabel();
 
             if (predictedLabel == classToEvaluate) {
                 if (actualLabel == classToEvaluate) {
@@ -183,7 +183,7 @@ public class KNNClassifier {
 
         for (Sample testSample : testSet) {
             int predictedLabel = classify(trainingSet, testSample);
-            int actualLabel = testSample.getLabelNumber();
+            int actualLabel = testSample.getLabel();
 
 
             if (actualLabel == classToEvaluate) {
