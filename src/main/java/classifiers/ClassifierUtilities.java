@@ -21,7 +21,7 @@ public final class ClassifierUtilities {
      *
      * @param coordinates1 The list of the first coordinates to calculate the distance from.
      * @param coordinates2 The list of the second coordinates to calculate the distance to.
-     * @param p The order of the Minkowski norm, influencing the calculation.
+     * @param p            The order of the Minkowski norm, influencing the calculation.
      * @return The Minkowski distance between the two coordinates.
      * @throws IllegalArgumentException If p is less than 1.
      * @throws IllegalArgumentException If the dimensions of the coordinates are not equal.

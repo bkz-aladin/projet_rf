@@ -78,14 +78,15 @@ public class App {
 
         System.out.println("================================== K-Means Classifier ==============================================");
 
-        int k = 9;
-        int maxIterations = 100;
-        boolean usingPP = true;
-        int distanceNorm = 2;
-        int randomSeed = 123;
-        int maxEvaluationIterations = 100;
+        // Initializing the parameters to be fed to the KMeansClassifier constructor. Can freely be changed.
+        int k = 9; // Number of clusters (K) to form.
+        int maxIterations = 100; // Maximum number of iterations for the algorithm.
+        boolean usingPP = true; // Whether centroids are initialized randomly or using the k-means++ strategy.
+        int distanceNorm = 2; // Order of the Minkowski norm (p) for distance calculation.
+        int randomSeed = 123; // Seed for all RNG in the algorithm.
+        int maxEvaluationIterations = 100; // The maximum number of evaluations to perform before deciding the best model.
 
-        // randomSeed parameter is optional.
+        // randomSeed parameter is optional. Add the parameter to the constructor if needed.
         KMeansClassifier kMeansClassifierSA = ClassifierUtilities.computeBestKmeansModel
                 (maxEvaluationIterations, k, dataSetSA, usingPP, maxIterations, distanceNorm);
         KMeansClassifier kMeansClassifierE34 = ClassifierUtilities.computeBestKmeansModel

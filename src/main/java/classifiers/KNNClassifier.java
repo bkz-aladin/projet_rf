@@ -4,23 +4,48 @@ import data.Sample;
 
 import java.util.*;
 
+/**
+ * The {@code KNNClassifier} class implements the KNN classification algorithm.
+ *
+ * <p>It is used to classify samples by comparing their features to that of their k-nearest neighbors.
+ *
+ * @author [Latif Yaya]
+ * @version 1.0
+ */
 public class KNNClassifier {
 
 //    List<Sample> trainingSet;
     int k;
     int p;
 
+    /**
+     * Default constructor initializing k to 5 and p to 2.
+     */
     public KNNClassifier()
     {
         k = 5;
         p = 2;
     }
-    public KNNClassifier(int n_neighbors, int p_dist)
+
+    /**
+     * Constructor with parameters to set the classifier's k and p values.
+     *
+     * @param k_neighbors Number of neighbors to consider in the classification.
+     * @param p_dist      Order of the Minkowski norm for distance calculation.
+     */
+    public KNNClassifier(int k_neighbors, int p_dist)
     {
-        k = n_neighbors;
+        k = k_neighbors;
         p = p_dist;
     }
 
+    /**
+     * Classifies a test sample based on the k-nearest neighbors in the training set.
+     *
+     * @param trainingSet The training set used for classification.
+     * @param testSample  The sample to be classified.
+     * @return The predicted label for the test sample.
+     */
     private int classify(List<Sample> trainingSet,Sample testSample) {
         // Trier les échantillons en fonction de leur distance par rapport à l'échantillon de test
 
@@ -40,11 +65,11 @@ public class KNNClassifier {
     }
 
     /**
-     * Calcule la F1-score du classificateur sur un ensemble de test.
+     * Computes the F1-score of the classifier on a test set.
      *
-     * @param trainingSet L'ensemble de données d'entraînement utilisé pour le classificateur.
-     * @param testSet     L'ensemble de données de test pour évaluer la F1-score du classificateur.
-     * @return La F1-score du classificateur sur l'ensemble de test.
+     * @param trainingSet The training dataset used for the classifier.
+     * @param testSet     The test dataset to evaluate the F1-score of the classifier.
+     * @return The F1-score of the classifier on the test set.
      */
     public double score(List<Sample> trainingSet, List<Sample> testSet) {
         if (trainingSet.isEmpty() || testSet.isEmpty()) {
@@ -79,6 +104,13 @@ public class KNNClassifier {
         return 2 * (precision * recall) / (precision + recall);
     }
 
+    /**
+     * Performs k-fold cross-validation on the dataset.
+     *
+     * @param dataSet The dataset to perform cross-validation on.
+     * @param folds   The number of folds for cross-validation.
+     * @return The average accuracy across all folds.
+     */
     public double crossValidation(List<Sample> dataSet, int folds) {
         // Mélanger l'ensemble de données
         List<Sample> shuffledData = new ArrayList<>(dataSet);
@@ -118,6 +150,13 @@ public class KNNClassifier {
         return totalAccuracy / folds;
     }
 
+    /**
+     * Finds the best hyperparameters for the classifier using cross-validation.
+     *
+     * @param trainingSet The training set used for hyperparameter tuning.
+     * @param pValues     Array of p values to consider in the search.
+     * @return A map containing the best hyperparameters and their corresponding accuracy.
+     */
     public Map<String, Double> findBestHyperparameters(List<Sample> trainingSet, int[] pValues) {
         int bestK = -1;
         int bestP = -1;
@@ -161,6 +200,14 @@ public class KNNClassifier {
         return bestHyperparameters;
     }
 
+    /**
+     * Computes the confusion matrix for the KNN classification.
+     *
+     * @param trainingSet The training set used for classification.
+     * @param testSet     The test set for which the confusion matrix is computed.
+     * @param numClasses  The number of classes in the classification task.
+     * @return The confusion matrix.
+     */
     public int[][] confusionMatrix(List<Sample> trainingSet, List<Sample> testSet, int numClasses) {
         int[][] matrix = new int[numClasses][numClasses];
 
@@ -182,6 +229,15 @@ public class KNNClassifier {
         return matrix;
     }
 
+    /**
+     * Computes the precision for a specific class in the KNN classification.
+     *
+     * @param knnClassifier    The KNN classifier used for prediction.
+     * @param trainingSet      The training set used for classification.
+     * @param testSet          The test set for which precision is computed.
+     * @param classToEvaluate  The class label to evaluate precision.
+     * @return The precision for the specified class.
+     */
     public static double precision(KNNClassifier knnClassifier, List<Sample> trainingSet, List<Sample> testSet, int classToEvaluate) {
         int truePositives = 0;
         int falsePositives = 0;
@@ -202,6 +258,14 @@ public class KNNClassifier {
         return (double) truePositives / (truePositives + falsePositives);
     }
 
+    /**
+     * Computes the recall for a specific class in the KNN classification.
+     *
+     * @param trainingSet      The training set used for classification.
+     * @param testSet          The test set for which recall is computed.
+     * @param classToEvaluate  The class label to evaluate recall.
+     * @return The recall for the specified class.
+     */
     public double recall(List<Sample> trainingSet, List<Sample> testSet, int classToEvaluate) {
         int truePositives = 0;
         int falseNegatives = 0;
@@ -224,6 +288,14 @@ public class KNNClassifier {
         return (double) truePositives / (truePositives + falseNegatives);
     }
 
+    /**
+     * Computes the F1-score for a specific class in the KNN classification.
+     *
+     * @param trainingSet      The training set used for classification.
+     * @param testSet          The test set for which F1-score is computed.
+     * @param classToEvaluate  The class label to evaluate F1-score.
+     * @return The F1-score for the specified class.
+     */
     public double f1Score(List<Sample> trainingSet, List<Sample> testSet, int classToEvaluate) {
         double precision = precision(this, trainingSet, testSet, classToEvaluate);
         double recall = recall(trainingSet, testSet, classToEvaluate);
@@ -231,6 +303,13 @@ public class KNNClassifier {
         return 2 * (precision * recall) / (precision + recall);
     }
 
+    /**
+     * Evaluates the model on the provided test set using the best hyperparameters.
+     *
+     * @param trainingSet       The training set used for the model.
+     * @param testSet           The test set on which the model is evaluated.
+     * @param bestHyperparameters The best hyperparameters obtained from hyperparameter tuning.
+     */
     public static void evaluateModelOnTestSet(List<Sample> trainingSet, List<Sample> testSet, Map<String, Double> bestHyperparameters) {
         // Utilisation des meilleurs hyperparamètres pour évaluer le modèle sur le testSet
         int bestK = bestHyperparameters.get("k").intValue();
@@ -242,7 +321,7 @@ public class KNNClassifier {
         int[][] matrix = classifier.confusionMatrix(trainingSet, testSet, 9);
         ClassifierUtilities.printConfusionMatrix(matrix);
 
-//         Calcul et affichage de la précision et du rappel pour chaque classe
+        // Calcul et affichage de la précision et du rappel pour chaque classe
         for (int j = 1; j <= 9; j++) {
             String precision = String.format("%.2f", precision(classifier, trainingSet, testSet, j)*100);
             String rappel = String.format("%.2f", classifier.recall(trainingSet, testSet, j)*100);

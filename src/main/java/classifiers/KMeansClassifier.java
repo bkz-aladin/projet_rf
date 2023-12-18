@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
  *
  * <p>Although KMeans is an unsupervised algorithm, we can still use it as a classifier with a labeled dataset.
  *
- * @author [Latif Yaya, Kentaro Sauce]
+ * @author [Kentaro Sauce]
  * @version 1.0
  */
 public class KMeansClassifier {
@@ -66,7 +66,8 @@ public class KMeansClassifier {
      * @param distanceNorm   Order of the Minkowski norm for distance calculation.
      * @param randomSeed     Seed for all RNG in the algorithm.
      */
-    public KMeansClassifier(int k, List<Sample> dataSet, boolean usingPP, int maxIterations, int distanceNorm, int randomSeed) {
+    public KMeansClassifier
+    (int k, List<Sample> dataSet, boolean usingPP, int maxIterations, int distanceNorm, int randomSeed) {
         this.k = k;
         this.dataSet = dataSet;
         this.usingPP = usingPP;
@@ -91,7 +92,8 @@ public class KMeansClassifier {
      * @param maxIterations  Maximum number of iterations for the algorithm.
      * @param distanceNorm   Order of the Minkowski norm for distance calculation.
      */
-    public KMeansClassifier(int k, List<Sample> dataSet, boolean usingPP, int maxIterations, int distanceNorm) {
+    public KMeansClassifier
+    (int k, List<Sample> dataSet, boolean usingPP, int maxIterations, int distanceNorm) {
         this.k = k;
         this.dataSet = dataSet;
         this.usingPP = usingPP;
@@ -585,6 +587,14 @@ public class KMeansClassifier {
                     recallValues.get(classIndex) * 100, f1Scores.get(classIndex) * 100);
             System.out.println(formattedLine);
         }
+
+        // Print the average precision value of the model.
+        float averagePrecisionValue = (float) precisionValues.stream()
+                .mapToDouble(Float::doubleValue)
+                .average()
+                .orElse(0.0);
+        String averagePrecisionValueString = String.format("%.2f%%", averagePrecisionValue * 100);
+        System.out.println("Average precision value: " + averagePrecisionValueString);
 
         // Print the macro F1 score of the model.
         String macroF1Score = String.format("%.2f%%", this.macroF1Score * 100);
