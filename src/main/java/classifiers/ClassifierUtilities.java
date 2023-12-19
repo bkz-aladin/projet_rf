@@ -86,10 +86,11 @@ public final class ClassifierUtilities {
         String bestAccuracy = String.format("%.2f", bestHyperparameters.get("accuracy")*100);
 
         System.out.println("Meilleurs hyperparamètres : k = " + bestK + ", p = " + bestP);
-        System.out.println("Précision moyenne correspondante : " + bestAccuracy);
+        System.out.println("Score moyenne correspondante : " + bestAccuracy);
 
         return bestHyperparameters;
     }
+
 
     /**
      * Prints the confusion matrix for either a KNN or a KMeans classification.

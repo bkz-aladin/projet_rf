@@ -200,18 +200,17 @@ public class KNNClassifier {
             }
         }
 
-        return (double) truePositives / (truePositives + falsePositives);
+        int denominator = truePositives + falsePositives;
+        return denominator == 0 ? 0 : (double) truePositives / denominator;
     }
 
     public double recall(List<Sample> trainingSet, List<Sample> testSet, int classToEvaluate) {
         int truePositives = 0;
         int falseNegatives = 0;
 
-
         for (Sample testSample : testSet) {
             int predictedLabel = classify(trainingSet, testSample);
             int actualLabel = testSample.getLabelNumber();
-
 
             if (actualLabel == classToEvaluate) {
                 if (predictedLabel == classToEvaluate) {
@@ -222,15 +221,19 @@ public class KNNClassifier {
             }
         }
 
-        return (double) truePositives / (truePositives + falseNegatives);
+        int denominator = truePositives + falseNegatives;
+        return denominator == 0 ? 0 : (double) truePositives / denominator;
     }
+
 
     public double f1Score(List<Sample> trainingSet, List<Sample> testSet, int classToEvaluate) {
         double precision = precision(this, trainingSet, testSet, classToEvaluate);
         double recall = recall(trainingSet, testSet, classToEvaluate);
 
-        return 2 * (precision * recall) / (precision + recall);
+        double denominator = precision + recall;
+        return denominator == 0 ? 0 : 2 * (precision * recall) / denominator;
     }
+
 
     public static void evaluateModelOnTestSet(List<Sample> trainingSet, List<Sample> testSet, Map<String, Double> bestHyperparameters) {
         // Utilisation des meilleurs hyperparamètres pour évaluer le modèle sur le testSet
@@ -239,7 +242,7 @@ public class KNNClassifier {
 
         KNNClassifier classifier = new KNNClassifier(bestK, bestP);
         String realScore = String.format("%.2f", classifier.score(trainingSet, testSet)*100);
-        System.out.println("Précision du modèle sur le testSet : " + realScore);
+        System.out.println("Score du modèle sur le testSet : " + realScore);
         int[][] matrix = classifier.confusionMatrix(trainingSet, testSet, 9);
         ClassifierUtilities.printConfusionMatrix(matrix);
 
